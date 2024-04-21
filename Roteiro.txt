@@ -1,0 +1,19 @@
+Criado o projeto
+Pastas: 
+assets-imagens
+css-estilos
+html-front
+js-javascript
+
+npm-init no VS para criar o package.json que contera as info de dependencias
+
+criado um projeto no github e vinculado ao git
+
+instalado o nodemon para testar em tempo real as alterações
+e add no package o codigo
+
+  "scripts": {
+    "start": "nodemon server.js",
+
+criado o server.js e adicionado um código generico para poder testar antes de instalar o expres
+

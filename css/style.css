@@ -1,0 +1,23 @@
+/*
+URL:      ligapaulistadenatacao.com.br
+Description:    Estilo para página da Liga Paulista de Natação
+Author:         Jhonattan Willian Correia Silva
+Version:        1.0
+*/
+
+.cabecalho{
+    background-color: rgb(77, 64, 64);
+}
+
+.carousel-item h5{
+    font-family: 'Montserrat';
+    font-weight: bolder;
+    color: black;
+    background-color: aliceblue;
+    font-family: montserrat
+}
+
+.carousel-item p{
+    font-family: 'Montserrat';
+    background-color: brown;
+}
