@@ -5,8 +5,20 @@ Author:         Jhonattan Willian Correia Silva
 Version:        1.0
 */
 
+
+
 .cabecalho{
-    background-color: rgb(77, 64, 64);
+    background-color: #264653;
+}
+
+.cabecalho-btns li{
+    font-weight: bold;
+    background-color: #2e8b57;
+    color: #030083;
+    border-radius: 20px;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
 }
 
 .carousel-item h5{
@@ -20,4 +32,60 @@ Version:        1.0
 .carousel-item p{
     font-family: 'Montserrat';
     background-color: brown;
+}
+
+/*FIM CARROSSEL*/
+
+/*INICIO PROXIMAS ETAPAS*/
+
+.prox-etapas{
+    background-color: rgb(200, 247, 231);
+    margin-top: 2%;
+    margin-bottom: 2%;
+    padding-bottom: 1%;
+}
+
+.calendario {
+    /*max-width: 300px;*/
+    margin: 20px auto;
+    border-collapse: collapse;
+  }
+  .calendario th {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+  }
+  .calendario td {
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #ddd;
+  }
+  .calendario td:hover {
+    background-color: #f0f0f0;
+  }
+
+  /*FIM PROXIMAS ETAPAS*/
+
+
+  /*INICIO ETAPAS PASSADAS*/
+.row-etapas{
+    
+}
+
+.card-etapas{
+    background-color: wheat;
+    margin: 1%;
+}
+
+/*FIM ETAPAS PASSADAS*/
+
+
+/*INICIO PARCEIROS*/
+.parceiros{
+    background-color: rgb(200, 247, 231);
+}
+
+.parceiros a{
+    color: inherit; /* herda a cor do texto do elemento pai */
+    text-decoration: none; /* remove o sublinhado */
 }
