@@ -11,8 +11,8 @@ body a{
     text-decoration: none; /* remove o sublinhado */
 }
 
-.cabecalho{
-    background-color: #264653;
+nav.cabecalho{
+    background-color:  rgb(200, 247, 231);
 }
 
 .cabecalho-btns li{

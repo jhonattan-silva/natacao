@@ -4,10 +4,15 @@ const path = require('path');
 const port = 3000;
 
 const server = http.createServer((req, res) => {
-  // Definindo o caminho do arquivo baseado na requisição
   let filePath = '.' + req.url;
   if (filePath === './') {
     filePath = './index.html';
+  } else {
+    // Adicionando a pasta html ao caminho se a requisição for para admin.html
+    const fileName = path.basename(filePath);
+    if (fileName === 'admin.html') {
+      filePath = './html/' + fileName;
+    }
   }
 
   // Selecionando o tipo de conteúdo correto

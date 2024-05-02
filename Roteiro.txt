@@ -17,3 +17,7 @@ e add no package o codigo
 
 criado o server.js e adicionado um código generico para poder testar antes de instalar o expres
 
+Para rodar o servidor uso o cmd:
+npm run start 
+//onde start é o nome que dei para o script listado ali em cima
+
