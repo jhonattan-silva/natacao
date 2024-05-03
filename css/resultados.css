@@ -7,7 +7,11 @@ body{
     padding-top: 2%;
     padding-bottom: 2%;
  }
-  
+ 
+ .input-group{
+    width: 50% !important;
+ }
+ 
 .wrap-form{
     background: linear-gradient(45deg, rgba(204, 63, 145, 0.8), rgba(231, 97, 95, 0.8));
     border-radius: 10px;
@@ -29,9 +33,14 @@ body{
     margin: 1%;
 }
 
+.fm-classificacao span{
+    font-weight: bold;
+}
+
 .fm-classificacao label{
     padding-top: 10%;
     padding-right: 0%;
+    font-weight: bold;
 }
 
 .fm-classificacao button{
