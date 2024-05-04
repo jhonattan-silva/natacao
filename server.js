@@ -1,63 +1,44 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+// Importando o módulo Express
+const express = require('express');
+
+// Importando o módulo MySQL
+const mysql = require('mysql');
+
+// Criando uma instância do Express
+const app = express();
+
+// Definindo a porta que o servidor vai escutar
 const port = 3000;
 
-const server = http.createServer((req, res) => {
-  let filePath = '.' + req.url;
-  if (filePath === './') {
-    filePath = './index.html';
-  } else {
-    // Adicionando a pasta html ao caminho se a requisição for para admin.html
-    const fileName = path.basename(filePath);
-    if (fileName === 'admin.html') {
-      filePath = './html/' + fileName;
-    }
-  }
-
-  // Selecionando o tipo de conteúdo correto
-  const extname = String(path.extname(filePath)).toLowerCase();
-  const mimeTypes = {
-    '.html': 'text/html',
-    '.js': 'text/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpg',
-    '.gif': 'image/gif',
-    '.svg': 'image/svg+xml',
-    '.wav': 'audio/wav',
-    '.mp4': 'video/mp4',
-    '.woff': 'application/font-woff',
-    '.ttf': 'application/font-ttf',
-    '.eot': 'application/vnd.ms-fontobject',
-    '.otf': 'application/font-otf',
-    '.wasm': 'application/wasm'
-  };
-
-  const contentType = mimeTypes[extname] || 'application/octet-stream';
-
-  // Lendo e servindo o arquivo
-  fs.readFile(filePath, function(error, content) {
-    if (error) {
-      if(error.code === 'ENOENT') {
-        fs.readFile('./404.html', function(error, content) {
-          res.writeHead(404, { 'Content-Type': 'text/html' });
-          res.end(content, 'utf-8');
-        });
-      } else {
-        res.writeHead(500);
-        res.end('Desculpe, houve um erro: '+error.code+' ..\n');
-        res.end(); 
-      }
-    } else {
-      res.writeHead(200, { 'Content-Type': contentType });
-      res.end(content, 'utf-8');
-    }
-  });
-
+// Criando a conexão com o banco de dados MySQL
+const db = mysql.createConnection({
+  host: 'localhost', // O host do banco de dados
+  user: 'seu_usuario', // O usuário do banco de dados
+  password: 'sua_senha', // A senha do usuário
+  database: 'seu_banco_de_dados' // O nome do banco de dados
 });
 
-server.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}/`);
+// Conectando ao banco de dados
+db.connect((err) => {
+  if (err) {
+    throw err; // Se houver um erro, lance o erro
+  }
+  console.log('Conectado ao banco de dados'); // Se não houver erros, imprima uma mensagem de sucesso
+});
+
+// Definindo uma rota para testar a conexão com o banco de dados
+app.get('/testdb', (req, res) => {
+  let sql = 'SELECT * FROM sua_tabela'; // A consulta SQL para executar
+  db.query(sql, (err, result) => { // Executando a consulta SQL
+    if (err) throw err; // Se houver um erro, lance o erro
+    console.log(result); // Se não houver erros, imprima o resultado da consulta
+    res.send('Dados do banco de dados aqui...'); // Enviando uma resposta para o cliente
+  });
+});
+
+// Continue com o seu código existente para servir arquivos estáticos aqui...
+
+// Iniciando o servidor
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
 });

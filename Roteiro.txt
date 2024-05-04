@@ -15,9 +15,15 @@ e add no package o codigo
   "scripts": {
     "start": "nodemon server.js",
 
-criado o server.js e adicionado um código generico para poder testar antes de instalar o expres
+criado o server.js e adicionado um código generico para poder testar antes de instalar o express
 
 Para rodar o servidor uso o cmd:
 npm run start 
 //onde start é o nome que dei para o script listado ali em cima
 
+Utilização do MySQL
+MySQL Driver: O Node.js usa um driver para se conectar com o MySQL
+npm install mysql
+
+Instalar o Express para usar o bd corretamente
+npm install express mysql
