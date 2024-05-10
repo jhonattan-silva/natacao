@@ -1,6 +1,6 @@
 // Usuário e senha fictícios para teste
 var testUser = '22341688802';
-var testPassword = 'teste';
+var testPassword = '123';
 
 document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();

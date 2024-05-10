@@ -4,6 +4,9 @@ const express = require('express');
 // Importando o módulo MySQL
 const mysql = require('mysql');
 
+// Importando o módulo path
+const path = require('path');
+
 // Criando uma instância do Express
 const app = express();
 
@@ -13,9 +16,9 @@ const port = 3000;
 // Criando a conexão com o banco de dados MySQL
 const db = mysql.createConnection({
   host: 'localhost', // O host do banco de dados
-  user: 'seu_usuario', // O usuário do banco de dados
-  password: 'sua_senha', // A senha do usuário
-  database: 'seu_banco_de_dados' // O nome do banco de dados
+  user: 'root', // O usuário do banco de dados
+  password: 'Jhow3224', // A senha do usuário
+  database: 'liga_natacao' // O nome do banco de dados
 });
 
 // Conectando ao banco de dados
@@ -36,9 +39,20 @@ app.get('/testdb', (req, res) => {
   });
 });
 
-// Continue com o seu código existente para servir arquivos estáticos aqui...
+
+// Definindo os caminhos estaticos
+app.use(express.static(__dirname + '/html'));
+app.use(express.static(__dirname + '/assets'));
+app.use(express.static(__dirname));
+
+
 
 // Iniciando o servidor
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
+});
+
+//Página não encontrada
+app.use((req, res) => {
+  res.status(404).send('Desculpe, não conseguimos encontrar isso!');
 });
