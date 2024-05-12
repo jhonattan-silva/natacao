@@ -1,0 +1,25 @@
+body{
+  background-color: #252C32 !important;
+}
+
+
+.tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    margin: 10px;
+    border-radius: 10px;
+   
+  }
+
+  .tile button{
+    font-weight: bold;
+    font-size: 24px;
+    color: beige;
+  }
+
+  .noticias { background-color: #007bff; }
+  .eventos { background-color: #28a745; }
+  .configuracoes { background-color: #dc3545; }
+  .usuarios { background-color: #ffc107; }

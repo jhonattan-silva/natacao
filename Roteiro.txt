@@ -23,7 +23,14 @@ npm run start
 
 Utilização do MySQL
 MySQL Driver: O Node.js usa um driver para se conectar com o MySQL
-npm install mysql
+npm install mysql2
 
 Instalar o Express para usar o bd corretamente
 npm install express mysql
+
+adicionado para acessar o env com dados do banco
+npm install dotenv
+
+Adicionado o jquery (para o ajax e dom) e o lodash (para o debounce que vai melhorar a eficiencia do ajax)
+npm install jquery lodash
+
