@@ -1,5 +1,7 @@
 var equipesRetornadas = []; //equipes retornadas na busca ajax
 var todosPreenchidos = false; //verificador se todos os campos estão preenchidos
+var cpfOK = false; //cpf valido e preenchido
+var foneOK = false; //tel valido e preenchido
 
 /*BUSCA EQUIPE AJAX*/
 $(document).ready(function () {
@@ -10,7 +12,7 @@ $(document).ready(function () {
     var selecionadoDoAutocomplete = false;
     inputEquipe.on('input', function () {
         var input = $(this).val();
-        if (input.length >= 1) {
+        if (input.length >= 1) { //ao digitar o segundo caracter
             $.ajax({
                 url: '/buscarEquipes',
                 data: { equipe: input },
@@ -35,6 +37,19 @@ $(document).ready(function () {
     });
     /*  FIM BUSCA EQUIPES   */
 
+        /*  VALIDA SE ESCOLHEU EQUIPE DO BANCO  */
+    // Adiciona um ouvinte de evento para o evento 'change'
+    inputEquipe.on('change', function () {
+        // Se o valor atual do campo de entrada não estiver na lista de equipes retornadas e a seleção não foi feita a partir do autocomplete, limpa o campo de entrada
+        if (!equipesRetornadas.includes($(this).val()) && !selecionadoDoAutocomplete) {
+            $(this).val('');
+            equipeSelecionada.val('');
+        }
+        // Redefine a flag
+        selecionadoDoAutocomplete = false;
+    });
+    /*  FIM VALIDA EQUIPE*/
+
     /*  AVANÇAR COM ENTER   */
     $(document).on('keypress', function (e) {
         if (e.which == 13) { // 13 é o código de tecla para Enter
@@ -48,6 +63,7 @@ $(document).ready(function () {
     /*  Valida CPF  */
     var inputCPF = $('input[name="cpf"]');
     inputCPF.mask('000.000.000-00');
+
     inputCPF.on('keyup', function () {
         var cpf = $(this).val().replace(/[^0-9]/g, '').toString();
         if (cpf.length == 11) {
@@ -81,38 +97,37 @@ $(document).ready(function () {
             $('#cpf-icon').html('<i class="fas fa-exclamation-circle"></i>');
         }
     });
+
+    inputCPF.blur(function () {
+        var cpf = $(this).val().replace(/[^0-9]/g, '').toString();
+        if (cpf.length != 11) { //se estiver faltando digitos do cpf
+            alert('CPF inválido');
+        }else{
+            cpfOK = true;
+        }
+    });
     /*  FIM VALIDA CPF*/
 
     /*    VALIDA DATA NASC   */
-  
-    
+    // Função para converter a data de nascimento para o formato MySQL
+function convertToMySQLDate(date) {
+    return date.toISOString().slice(0, 19).replace('T', ' ');
+}
     /*   FIM VALIDA DATA NASC   */
     
-
     /*    VALIDA TELEFONE     */
     var inputFone = $('input[name="fone"]');
     inputFone.mask('(00) 00000-0000');
 
     inputFone.blur(function () {
         var telefone = inputFone.val().replace(/[^0-9]/g, '').toString();
-        if (telefone.length < 10 || telefone.length > 11) {
+        if (telefone.length < 9 || telefone.length > 11) { //se tiver menos digitos que telefone fixo ou mais que celular
             alert('Telefone inválido');
+        }else{
+            foneOK = true;
         }
     });
     /*  FIM VALIDA TELEFONE */
-
-    /*  VALIDA SE ESCOLHEU EQUIPE DO BANCO  */
-    // Adiciona um ouvinte de evento para o evento 'change'
-    inputEquipe.on('change', function () {
-        // Se o valor atual do campo de entrada não estiver na lista de equipes retornadas e a seleção não foi feita a partir do autocomplete, limpa o campo de entrada
-        if (!equipesRetornadas.includes($(this).val()) && !selecionadoDoAutocomplete) {
-            $(this).val('');
-            equipeSelecionada.val('');
-        }
-        // Redefine a flag
-        selecionadoDoAutocomplete = false;
-    });
-    /*  FIM VALIDA EQUIPE*/
 
 
     /*  MODAL DESEJA CONTINUAR  */
@@ -128,16 +143,48 @@ $(document).ready(function () {
             }
         });
 
-        // Se nem todos os campos de entrada estão preenchidos
-        if (!todosPreenchidos) {
+        if (!todosPreenchidos || !foneOK || !cpfOK) { //se está tudo preenchido, o telefone e o cpf foram validados
             e.preventDefault(); // Impede a submissão do formulário
-            alert('Por favor, preencha todos os campos antes de salvar.');
-            console.log(todosPreenchidos)
+            alert('Por favor, preencha todos os campos corretanente antes de salvar.');
         } else {
             // Se todos os campos estão preenchidos, exibe o modal
             $('#confirmationModal').modal('show');
-            console.log(todosPreenchidos)
         }
+        /*Fim verificações de preenchimento*/
+// Coleta os dados do formulário
+var nome = $('input[name="nome"]').val();
+var cpf = $('input[name="cpf"]').val();
+var dtnasc = convertToMySQLDate(new Date($('input[name="dtnasc"]').val())); // Converte a data
+var telefone = $('input[name="fone"]').val();
+var idEquipe = $('input[type="hidden"]').val();
+
+// Envia os dados para o servidor usando uma requisição AJAX
+fetch('/salvarNadador', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        nome: nome,
+        cpf: cpf,
+        dtnasc: dtnasc,
+        telefone: telefone,
+        idEquipe: idEquipe
+    })
+})
+.then(response => response.json())
+.then(data => {
+    // Trate a resposta do servidor (por exemplo, exiba uma mensagem de sucesso)
+    console.log(data.message);
+})
+.catch(error => {
+    // Trate erros (por exemplo, exiba uma mensagem de erro)
+    console.error('Erro ao salvar nadador:', error);
+});
+
+
+
+
     });
 
 
@@ -153,12 +200,15 @@ $(document).ready(function () {
 
     // Quando o botão 'Encerrar' é clicado
     $('#encerraCadastro').on('click', function () {
-        // Redireciona para a página admin.html
+        alert("Nadador cadastrado com sucesso!");
         window.location.href = 'http://localhost:3000/html/admin.html';
     });
-
-
     /*  FIM MODAL DESEJA CONTINUAR */
+
+
+
+
+
 
 });//fecha $(document).ready
 
@@ -265,7 +315,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
             alert('Por favor, escolha uma equipe válida.');
         }
     }
-
-
+    /*  FIM VERIFICA EQUIPE*/
 });
 
