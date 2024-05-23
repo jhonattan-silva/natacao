@@ -6,32 +6,55 @@ module.exports = function(app, db) { //tudo que usa o app do express aqui dentro
         if(err) {
             console.error(err);
             res.status(500).send('Erro ao buscar equipes');
-        } else {
-            const idEquipe = results[0].id; //pega o id para vincular ao nadador
-            res.json(results);
-        }
+            return;
+        }     
+        const equipes = results.map(equipe => {
+            return {
+              id: equipe.id,
+              nome: equipe.nome
+            };
+          });
+
+            res.json(equipes);
+        
         });
     });
 
 
 
-app.post('/salvarNadador', function(req, res) {
-    var nome = req.body.nome;
-    var cpf = req.body.cpf;
-    var dtnasc = req.body.dtnasc;
-    var telefone = req.body.fone;
-    var equipes_id = req.body.idEquipe; // Lembre-se de obter o id da equipe escolhida anteriormente
+    app.post('/salvarNadador', function (req, res) {
+        var nome = req.body.nome;
+        var cpf = req.body.cpf;
+        var sexo = req.body.sexo;
+        var data_nasc = req.body.data_nasc;
+        var telefone = req.body.telefone;
+        var idEquipe = req.body.idEquipe; // Obtém o ID da equipe escolhida anteriormente
 
-    // Execute a consulta SQL para inserir os dados na tabela de nadadores
-    var sql = 'INSERT INTO nadadores (nome, cpf, dtnasc, telefone, equipes_id) VALUES (?, ?, ?, ?, ?)';
-    db.query(sql, [nome, cpf, dtnasc, telefone, equipes_id], function(err, result) {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Erro ao salvar nadador');
-        } else {
-            res.json({ message: 'Nadador salvo com sucesso!' });
-        }
+        
+        // Verifica se o CPF já está cadastrado
+        var duplicado = 'SELECT id FROM nadadores WHERE cpf = ?';
+        db.query(duplicado, [cpf], function(err, results) {
+            if (err) {
+                console.error(err);
+                res.status(500).send('Erro ao verificar CPF');
+                return;
+            }
+            
+            if (results.length > 0) {
+                // CPF já está cadastrado
+                res.status(400).json({ message: 'CPF já cadastrado' });
+            } else {
+                // CPF não está cadastrado, prossegue com a inserção
+                var insertSql = 'INSERT INTO nadadores (nome, cpf, sexo, data_nasc, telefone, equipes_id) VALUES (?, ?, ?, ?, ?, ?)';
+                db.query(insertSql, [nome, cpf, sexo, data_nasc, telefone, idEquipe], function(err, results) {
+                    if (err) {
+                        console.error(err);
+                        res.status(500).send('Erro ao salvar nadador');
+                    } else {
+                        res.json({ message: 'Nadador salvo com sucesso!' });
+                    }
+                });
+            }
+        });
     });
-});
-
 }//FECHA O MODULE EXPORTS

@@ -8,7 +8,6 @@ const path = require('path');
 const app = express();
 // Definindo a porta que o servidor vai escutar
 const port = process.env.PORT || 3000;
-
 //Iniciar o dotenv para credenciais do arquivo env
 require('dotenv').config();
 
@@ -29,6 +28,9 @@ db.connect((err) => {
   console.log('Conectado ao banco de dados');
 });
 
+// Adicionando middleware para analisar JSON e dados de formulários (para comunicação fetch entre server e client)
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Definindo os caminhos estaticos
 /*

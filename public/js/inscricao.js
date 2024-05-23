@@ -1,33 +1,36 @@
 var equipesRetornadas = []; //equipes retornadas na busca ajax
 var todosPreenchidos = false; //verificador se todos os campos estão preenchidos
-var cpfOK = false; //cpf valido e preenchido
+var cpfValido = false; //cpf valido e preenchido
 var foneOK = false; //tel valido e preenchido
 
 /*BUSCA EQUIPE AJAX*/
 $(document).ready(function () {
     var inputEquipe = $('input[name="equipe"]');
     // Campo oculto para armazenar o valor selecionado
-    var equipeSelecionada = $('<input>').attr('type', 'hidden').appendTo('form');
-    // Flag para verificar se a seleção foi feita a partir do autocomplete
-    var selecionadoDoAutocomplete = false;
-    inputEquipe.on('input', function () {
-        var input = $(this).val();
-        if (input.length >= 1) { //ao digitar o segundo caracter
+    var equipeSelecionada = $('<input>').attr('type', 'hidden').appendTo('form'); //campo oculto que armazenará a equipe selecionada
+    var selecionadoDoAutocomplete = false; //verifica se o valor é digitado ou do autocomplete
+    inputEquipe.on('input', function () { //quando algo for digitaddo no input
+        var inputBusca = $(this).val(); //vai receber o valor que está sendo digitado
+        if (inputBusca.length >= 1) { //ao digitar o segundo caracter
             $.ajax({
                 url: '/buscarEquipes',
-                data: { equipe: input },
+                data: { equipe: inputBusca },
                 success: function (data) {
                     var nomesDasEquipes = data.map(function (equipe) {
-                        return equipe.nome;
+                        return {
+                            id: equipe.id,
+                            nome: equipe.nome
+                        }
                     });
-                    inputEquipe.autocomplete({
-                        source: nomesDasEquipes,
+                    inputEquipe.autocomplete({ //vai autocompletar o input equipe
+                        source: nomesDasEquipes.map(function (equipe) {
+                            return equipe.nome;
+                        }),
                         select: function (event, ui) {
-                            // Quando um item é selecionado, atualiza o valor do campo de entrada
-                            inputEquipe.val(ui.item.value);
-                            // Armazena o valor selecionado no campo oculto
-                            equipeSelecionada.val(ui.item.value);
-                            // Define a flag como verdadeira
+                            const nomeEquipeLista = ui.item.value; // Nome da equipe da lista
+                            const equipeCorrespondente = nomesDasEquipes.find(equipe => equipe.nome === nomeEquipeLista);
+                            const idEquipeBanco = equipeCorrespondente.id; // ID correspondente no banco
+                            equipeSelecionada.val(idEquipeBanco); // Armazena o ID da equipe no campo oculto
                             selecionadoDoAutocomplete = true;
                         }
                     });
@@ -37,7 +40,7 @@ $(document).ready(function () {
     });
     /*  FIM BUSCA EQUIPES   */
 
-        /*  VALIDA SE ESCOLHEU EQUIPE DO BANCO  */
+    /*  VALIDA SE ESCOLHEU EQUIPE DO BANCO  */
     // Adiciona um ouvinte de evento para o evento 'change'
     inputEquipe.on('change', function () {
         // Se o valor atual do campo de entrada não estiver na lista de equipes retornadas e a seleção não foi feita a partir do autocomplete, limpa o campo de entrada
@@ -59,62 +62,66 @@ $(document).ready(function () {
     });
     /*  FIM AVANÇA COM ENTER */
 
+    /*  VALIDA CPF  */
+    function validarCPF(cpf) {
+        cpf = cpf.replace(/\D/g, ''); // Remove caracteres não numéricos
+        if (cpf.length !== 11) return false;
+
+        var v = [];
+        v[0] = 0;
+        for (var i = 0; i < 9; i++) {
+            v[0] += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        v[0] = 11 - (v[0] % 11);
+        if (v[0] > 9) v[0] = 0;
+
+        v[1] = 0;
+        for (var i = 0; i < 10; i++) {
+            v[1] += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        v[1] = 11 - (v[1] % 11);
+        if (v[1] > 9) v[1] = 0;
+
+        return v[0] == cpf.charAt(9) && v[1] == cpf.charAt(10);
+    }
+
 
     /*  Valida CPF  */
     var inputCPF = $('input[name="cpf"]');
     inputCPF.mask('000.000.000-00');
 
     inputCPF.on('keyup', function () {
-        var cpf = $(this).val().replace(/[^0-9]/g, '').toString();
-        if (cpf.length == 11) {
-            var v = [];
-            //Calcula o primeiro dígito de verificação.
-            v[0] = 0;
-            for (var i = 0; i < 9; i++) {
-                v[0] += parseInt(cpf.charAt(i)) * (10 - i);
-            }
-            v[0] = 11 - (v[0] % 11);
-            if (v[0] > 9) v[0] = 0;
-            //Calcula o segundo dígito de verificação.
-            v[1] = 0;
-            for (var i = 0; i < 10; i++) {
-                v[1] += parseInt(cpf.charAt(i)) * (11 - i);
-            }
-            v[1] = 11 - (v[1] % 11);
-            if (v[1] > 9) v[1] = 0;
-            //Retorna Verdadeiro se os dígitos de verificação são os esperados.
-            if ((v[0] != cpf.charAt(9)) || (v[1] != cpf.charAt(10))) {
-                $(this).addClass('is-invalid');
-                $('#cpf-icon').html('<i class="fas fa-exclamation-circle"></i>');
-                $('#cpf-error').text('CPF inválido'); // Adiciona a mensagem de erro
-            } else {
-                $(this).removeClass('is-invalid');
-                $('#cpf-icon').html('');
-                $('#cpf-error').text(''); // Limpa a mensagem de erro
-            }
+        var cpf = $(this).val();
+        cpfValido = validarCPF(cpf); //aplica o cpf na função de validação
+        
+        if (cpfValido) {
+            $(this).removeClass('is-invalid');
+            $('#cpf-icon').html('');
+            $('#cpf-error').text('');
         } else {
             $(this).addClass('is-invalid');
             $('#cpf-icon').html('<i class="fas fa-exclamation-circle"></i>');
+            $('#cpf-error').text('CPF inválido');
         }
     });
 
     inputCPF.blur(function () {
-        var cpf = $(this).val().replace(/[^0-9]/g, '').toString();
-        if (cpf.length != 11) { //se estiver faltando digitos do cpf
+        var cpf = $(this).val();
+        if (!validarCPF(cpf)) { //se a função retornar falso
             alert('CPF inválido');
-        }else{
-            cpfOK = true;
+        } else {
+            cpfValido = true;
         }
     });
     /*  FIM VALIDA CPF*/
 
     /*    VALIDA DATA NASC   */
     // Função para converter a data de nascimento para o formato MySQL
-function convertToMySQLDate(date) {
-    return date.toISOString().slice(0, 19).replace('T', ' ');
-}
+   function convertToMySQLDate(date) {
+        return date.toISOString().slice(0, 19).replace('T', ' ');
+    }
     /*   FIM VALIDA DATA NASC   */
-    
+
     /*    VALIDA TELEFONE     */
     var inputFone = $('input[name="fone"]');
     inputFone.mask('(00) 00000-0000');
@@ -123,7 +130,7 @@ function convertToMySQLDate(date) {
         var telefone = inputFone.val().replace(/[^0-9]/g, '').toString();
         if (telefone.length < 9 || telefone.length > 11) { //se tiver menos digitos que telefone fixo ou mais que celular
             alert('Telefone inválido');
-        }else{
+        } else {
             foneOK = true;
         }
     });
@@ -132,83 +139,95 @@ function convertToMySQLDate(date) {
 
     /*  MODAL DESEJA CONTINUAR  */
     $('.submit').on('click', function (e) {
+        e.preventDefault();
         todosPreenchidos = true;
-        // Verifica cada campo de entrada no formulário
         $('form').find('input').each(function () {
-            // Se o campo de entrada está vazio
             if (!$(this).val()) {
                 todosPreenchidos = false;
-                // Sai do loop
                 return false;
             }
         });
 
-        if (!todosPreenchidos || !foneOK || !cpfOK) { //se está tudo preenchido, o telefone e o cpf foram validados
-            e.preventDefault(); // Impede a submissão do formulário
-            alert('Por favor, preencha todos os campos corretanente antes de salvar.');
+        let sexo = '';
+                const radios = document.querySelectorAll('input[name="sexo"]');
+                radios.forEach(radio => {
+                    if (radio.checked) {
+                        sexo = radio.value;
+                    }
+                });
+
+        if (!todosPreenchidos || !foneOK || !cpfValido || !sexo) {
+            alert('Por favor, preencha todos os campos corretamente antes de salvar.');
         } else {
-            // Se todos os campos estão preenchidos, exibe o modal
-            $('#confirmationModal').modal('show');
-        }
-        /*Fim verificações de preenchimento*/
-// Coleta os dados do formulário
-var nome = $('input[name="nome"]').val();
-var cpf = $('input[name="cpf"]').val();
-var dtnasc = convertToMySQLDate(new Date($('input[name="dtnasc"]').val())); // Converte a data
-var telefone = $('input[name="fone"]').val();
-var idEquipe = $('input[type="hidden"]').val();
+            const nome = $('input[name="nome"]').val();
+            const cpf = $('input[name="cpf"]').val().replace(/\D/g, '');//somente numeros
+            const data_nasc = $('input[name="dtnasc"]').val();
+            const telefone = $('input[name="fone"]').val();
+            const idEquipe = equipeSelecionada.val();
+            const sexo = $("input[type='radio'][name='sexo']:checked").val();
+            
 
-// Envia os dados para o servidor usando uma requisição AJAX
-fetch('/salvarNadador', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        nome: nome,
-        cpf: cpf,
-        dtnasc: dtnasc,
-        telefone: telefone,
-        idEquipe: idEquipe
-    })
-})
-.then(response => response.json())
-.then(data => {
-    // Trate a resposta do servidor (por exemplo, exiba uma mensagem de sucesso)
-    console.log(data.message);
-})
-.catch(error => {
-    // Trate erros (por exemplo, exiba uma mensagem de erro)
-    console.error('Erro ao salvar nadador:', error);
-});
-
-
-
-
-    });
+            fetch('/salvarNadador', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: nome, // Nome do nadador
+                    cpf: cpf, // CPF do nadador
+                    sexo: sexo, //sexo do nadador
+                    data_nasc: data_nasc, // Data de nascimento do nadador
+                    telefone: telefone, // Telefone do nadador
+                    idEquipe: idEquipe // ID da equipe selecionada
+                }) // Envia o ID da equipe
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.json().then(error => {
+                        throw new Error(error.message);
+                    });
+                }
+            })
+                .then(data => {
+                    console.log('Resposta do servidor:', data.message);
+                    $('#confirmationModal').modal('show');
+                })
+                .catch(error => {
+                    alert('Erro: ' + error.message);
+                    console.error('Erro na requisição:', error);
+                    console.log('Nome:', nome);
+                    console.log('CPF:', cpf);
+                    console.log('Sexo: ', sexo);
+                    console.log('Data de Nascimento:', data_nasc);
+                    console.log('Telefone:', telefone);
+                    console.log('ID Equipe selecionada:', idEquipe)
+                });
+        }//fecha else tudo preenchido
+    });//fecha submit.on.click
 
 
     /*  CONTROLE DO MODAL   */
     $('#adicionaOutro').on('click', function () {
-        limparCampos();
         $('#confirmationModal').modal('hide');
+        $('input[name=previous]').hide(); //esconde o voltar para não trocar a equipe
+        limparCampos();
     });
 
     function limparCampos() {
-        $('#cadNadador').find('input').val('');
+        $('#cadNadador').find('input[type="text"]').val('');
+        $('#cadNadador').find('input[type="date"]').val('');
+        $('#cadNadador').find('input[type="radio"]').prop('checked', false);
     }
+
 
     // Quando o botão 'Encerrar' é clicado
     $('#encerraCadastro').on('click', function () {
         alert("Nadador cadastrado com sucesso!");
-        window.location.href = 'http://localhost:3000/html/admin.html';
+        window.location.href = 'http://localhost:3000/';
     });
     /*  FIM MODAL DESEJA CONTINUAR */
-
-
-
-
-
 
 });//fecha $(document).ready
 
@@ -299,22 +318,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     /*SÓ AVANÇA SE ESCOLHER UMA EQUIPE*/
-    function handleNextButtonClick(event) {
-        var currentFieldset = event.target.parentNode;
-        var nextFieldset = currentFieldset.nextElementSibling;
-        // Obtém o valor do campo oculto
-        var valorSelecionado = $('input[type="hidden"]').val();
-        if (valorSelecionado) {
-            if (nextFieldset) {
-                proximoItem(currentFieldset);
-                nextFieldset.style.display = 'block';
-                currentFieldset.style.display = 'none';
-            }
-        } else {
-            // Mostra uma mensagem de erro se nenhum valor foi selecionado
-            alert('Por favor, escolha uma equipe válida.');
-        }
-    }
-    /*  FIM VERIFICA EQUIPE*/
+     function handleNextButtonClick(event) {
+         var currentFieldset = event.target.parentNode;
+         var nextFieldset = currentFieldset.nextElementSibling;
+         // Obtém o valor do campo oculto
+         var valorSelecionado = $('input[type="hidden"]').val();
+         if (valorSelecionado) {
+             if (nextFieldset) {
+                 proximoItem(currentFieldset);
+                 nextFieldset.style.display = 'block';
+                 currentFieldset.style.display = 'none';
+             }
+         } else {
+             // Mostra uma mensagem de erro se nenhum valor foi selecionado
+             alert('Por favor, escolha uma equipe válida.');
+         }
+     }
+     /*  FIM VERIFICA EQUIPE*/
 });
 

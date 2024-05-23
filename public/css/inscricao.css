@@ -137,5 +137,33 @@ body {
 	color: white;
 }
 
+/*Radio do sexo*/
+.radioSexo{
+	display: inline-flex;
+	overflow: hidden;
+	border-radius: 15px;
+	box-shadow: 0 0 5px (0,0,0,0.25);
+	margin-bottom: 3%;
+}
 
+.inpSexo{
+	display: none;
+}
 
+.lblSexo{
+	padding: 8px 14px;
+	font-size: 14px;
+	font-family: sans-serif;
+	color: white;
+	background: #27AE60;
+	cursor: pointer;
+	transition: background 0.1s;
+}
+
+.lblSexo:not(:last-of-type){
+	border-right: 1px solid #27AE60;
+}
+
+.inpSexo:checked + .lblSexo{
+	background: #006B56;
+}

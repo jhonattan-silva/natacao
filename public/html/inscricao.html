@@ -39,10 +39,17 @@
             </fieldset>
             <fieldset id="cadNadador">
                 <h2 class="fs-title" >Dados do Nadador</h2>
-                <input type="text" name="nome" placeholder="Nome" />
-                <input type="text" name="cpf" class="cpf form-control is-invalid" placeholder="CPF (somente números)" />
-                <input type="date" name="dtnasc" placeholder="Data de Nascimento" />
-                <input type="text" name="fone" placeholder="Telefone (Com ddd, somente números)" />
+                <input type="text" name="nome" placeholder="Nome" required/>
+                <input type="text" name="cpf" class="cpf form-control is-invalid" placeholder="CPF (somente números)"  required/>
+                <label class="text-black" for="sexo">Sexo:</label><br>
+                <div class="radioSexo">
+                    <input class="inpSexo" type="radio" name="sexo" id="sexoM" value="M">
+                    <label class="lblSexo" for="sexoM">Masculino</label>
+                    <input class="inpSexo" type="radio" name="sexo" id="sexoF" value="F">
+                    <label class="lblSexo" for="sexoF">Feminino</label>
+                </div>
+                <input type="date" name="dtnasc" placeholder="Data de Nascimento"  required/>
+                <input type="text" name="fone" placeholder="Telefone (Com ddd, somente números)"  required/>
                 <input type="button" name="previous" class="previous action-button" value="Voltar" />
                 <a href="#" class="submit action-button" target="_top">Salvar
                     Nadador</a>
