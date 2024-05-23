@@ -1,56 +1,56 @@
-var equipesRetornadas = []; //equipes retornadas na busca ajax
 var todosPreenchidos = false; //verificador se todos os campos estão preenchidos
 var cpfValido = false; //cpf valido e preenchido
 var foneOK = false; //tel valido e preenchido
 
-/*BUSCA EQUIPE AJAX*/
-$(document).ready(function () {
+/*BUSCA EQUIPE*/
+document.addEventListener('DOMContentLoaded', function () {
     var inputEquipe = $('input[name="equipe"]');
-    // Campo oculto para armazenar o valor selecionado
-    var equipeSelecionada = $('<input>').attr('type', 'hidden').appendTo('form'); //campo oculto que armazenará a equipe selecionada
-    var selecionadoDoAutocomplete = false; //verifica se o valor é digitado ou do autocomplete
-    inputEquipe.on('input', function () { //quando algo for digitaddo no input
-        var inputBusca = $(this).val(); //vai receber o valor que está sendo digitado
-        if (inputBusca.length >= 1) { //ao digitar o segundo caracter
-            $.ajax({
-                url: '/buscarEquipes',
-                data: { equipe: inputBusca },
-                success: function (data) {
-                    var nomesDasEquipes = data.map(function (equipe) {
-                        return {
+    var equipeSelecionada = $('input[name="equipeSelecionada"]');
+    var selecionadoDoAutocomplete = false; //flag se selecionou equipe do banco
+    var equipesRetornadas = []; //array com resultados da busca
+
+    inputEquipe.on('input', function () {
+        var inputBusca = this.value; //inputBusca recebe o que for sendo digitado
+        if (inputBusca.length >= 1) { //a partir do primeiro caracter começa a buscar
+            fetch(`/buscarEquipes?equipe=${encodeURIComponent(inputBusca)}`)
+                .then(response => response.json()) //transforma o retorno em json
+                .then(data => { 
+                    equipesRetornadas = data.map(function (equipe) { //mapeia as equipes
+                        return { //retorna o id e nome de cada equipe no json
                             id: equipe.id,
                             nome: equipe.nome
-                        }
+                        };
                     });
-                    inputEquipe.autocomplete({ //vai autocompletar o input equipe
-                        source: nomesDasEquipes.map(function (equipe) {
-                            return equipe.nome;
+                    inputEquipe.autocomplete({ //função autocompletar no input para receber a escolha vinda do banco
+                        source: equipesRetornadas.map(function (equipe) { //acha no map a equipe selecionada
+                            return equipe.nome; //joga o nome no input
                         }),
-                        select: function (event, ui) {
+                        select: function (event, ui) { //jquery UI
                             const nomeEquipeLista = ui.item.value; // Nome da equipe da lista
-                            const equipeCorrespondente = nomesDasEquipes.find(equipe => equipe.nome === nomeEquipeLista);
+                            const equipeCorrespondente = equipesRetornadas.find(equipe => equipe.nome === nomeEquipeLista);
                             const idEquipeBanco = equipeCorrespondente.id; // ID correspondente no banco
                             equipeSelecionada.val(idEquipeBanco); // Armazena o ID da equipe no campo oculto
-                            selecionadoDoAutocomplete = true;
+                            selecionadoDoAutocomplete = true; //muda a flag informando que não foi digitado e sim escolhido do banco
                         }
                     });
-                }
-            });
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar equipes:', error);
+                });
         }
     });
-    /*  FIM BUSCA EQUIPES   */
 
-    /*  VALIDA SE ESCOLHEU EQUIPE DO BANCO  */
-    // Adiciona um ouvinte de evento para o evento 'change'
-    inputEquipe.on('change', function () {
-        // Se o valor atual do campo de entrada não estiver na lista de equipes retornadas e a seleção não foi feita a partir do autocomplete, limpa o campo de entrada
-        if (!equipesRetornadas.includes($(this).val()) && !selecionadoDoAutocomplete) {
+    /*  Valida se escolheu equipe pré-cadastrada */
+    inputEquipe.on('change', function () { //se clicar fora sem escolher uma equipe do banco, vai limpar o input
+        if (!equipesRetornadas.some(equipe => equipe.nome === $(this).val()) && !selecionadoDoAutocomplete) {
             $(this).val('');
             equipeSelecionada.val('');
         }
-        // Redefine a flag
         selecionadoDoAutocomplete = false;
     });
+
+
+
     /*  FIM VALIDA EQUIPE*/
 
     /*  AVANÇAR COM ENTER   */
@@ -93,7 +93,7 @@ $(document).ready(function () {
     inputCPF.on('keyup', function () {
         var cpf = $(this).val();
         cpfValido = validarCPF(cpf); //aplica o cpf na função de validação
-        
+
         if (cpfValido) {
             $(this).removeClass('is-invalid');
             $('#cpf-icon').html('');
@@ -117,7 +117,7 @@ $(document).ready(function () {
 
     /*    VALIDA DATA NASC   */
     // Função para converter a data de nascimento para o formato MySQL
-   function convertToMySQLDate(date) {
+    function convertToMySQLDate(date) {
         return date.toISOString().slice(0, 19).replace('T', ' ');
     }
     /*   FIM VALIDA DATA NASC   */
@@ -149,12 +149,12 @@ $(document).ready(function () {
         });
 
         let sexo = '';
-                const radios = document.querySelectorAll('input[name="sexo"]');
-                radios.forEach(radio => {
-                    if (radio.checked) {
-                        sexo = radio.value;
-                    }
-                });
+        const radios = document.querySelectorAll('input[name="sexo"]');
+        radios.forEach(radio => {
+            if (radio.checked) {
+                sexo = radio.value;
+            }
+        });
 
         if (!todosPreenchidos || !foneOK || !cpfValido || !sexo) {
             alert('Por favor, preencha todos os campos corretamente antes de salvar.');
@@ -165,7 +165,7 @@ $(document).ready(function () {
             const telefone = $('input[name="fone"]').val();
             const idEquipe = equipeSelecionada.val();
             const sexo = $("input[type='radio'][name='sexo']:checked").val();
-            
+
 
             fetch('/salvarNadador', {
                 method: 'POST',
@@ -181,15 +181,15 @@ $(document).ready(function () {
                     idEquipe: idEquipe // ID da equipe selecionada
                 }) // Envia o ID da equipe
             })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    return response.json().then(error => {
-                        throw new Error(error.message);
-                    });
-                }
-            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.json().then(error => {
+                            throw new Error(error.message);
+                        });
+                    }
+                })
                 .then(data => {
                     console.log('Resposta do servidor:', data.message);
                     $('#confirmationModal').modal('show');
@@ -318,22 +318,22 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 
     /*SÓ AVANÇA SE ESCOLHER UMA EQUIPE*/
-     function handleNextButtonClick(event) {
-         var currentFieldset = event.target.parentNode;
-         var nextFieldset = currentFieldset.nextElementSibling;
-         // Obtém o valor do campo oculto
-         var valorSelecionado = $('input[type="hidden"]').val();
-         if (valorSelecionado) {
-             if (nextFieldset) {
-                 proximoItem(currentFieldset);
-                 nextFieldset.style.display = 'block';
-                 currentFieldset.style.display = 'none';
-             }
-         } else {
-             // Mostra uma mensagem de erro se nenhum valor foi selecionado
-             alert('Por favor, escolha uma equipe válida.');
-         }
-     }
-     /*  FIM VERIFICA EQUIPE*/
+    function handleNextButtonClick(event) {
+        var currentFieldset = event.target.parentNode;
+        var nextFieldset = currentFieldset.nextElementSibling;
+        // Obtém o valor do campo oculto
+        var valorSelecionado = $('input[type="hidden"]').val();
+        if (valorSelecionado) {
+            if (nextFieldset) {
+                proximoItem(currentFieldset);
+                nextFieldset.style.display = 'block';
+                currentFieldset.style.display = 'none';
+            }
+        } else {
+            // Mostra uma mensagem de erro se nenhum valor foi selecionado
+            alert('Por favor, escolha uma equipe válida.');
+        }
+    }
+    /*  FIM VERIFICA EQUIPE*/
 });
 
