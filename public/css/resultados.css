@@ -80,3 +80,7 @@ body{
 #oitavo{
     background-color: #E5E4E2;
 }
+
+#divResultados{
+    display: none;
+}

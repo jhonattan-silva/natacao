@@ -48,9 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         selecionadoDoAutocomplete = false;
     });
-
-
-
     /*  FIM VALIDA EQUIPE*/
 
     /*  AVANÇAR COM ENTER   */

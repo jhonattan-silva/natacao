@@ -1,61 +1,105 @@
-// Importando o módulo Express
+// Importando módulos
 const express = require('express');
-// Importando o módulo MySQL
-const mysql = require('mysql2');
-// Importando o módulo path
 const path = require('path');
-// Criando uma instância do Express
+const fs = require('fs');
+const dotenv = require('dotenv');
+const session = require('express-session');
+const passport = require('passport');
+const flash = require('connect-flash');
+const MySQLStore = require('express-mysql-session')(session);
+const rateLimit = require('express-rate-limit');
+const https = require('https');
+
+// Conexão com banco de dados e passport
+const db = require('./config/db');
+require('./config/passport');
+
+// Criando app Express
 const app = express();
-// Definindo a porta que o servidor vai escutar
+
+// Definindo porta e inicializando dotenv
 const port = process.env.PORT || 3000;
-//Iniciar o dotenv para credenciais do arquivo env
-require('dotenv').config();
+dotenv.config();
 
-// Criando a conexão com o BD
-const db = mysql.createConnection({
-  host: process.env.DB_HOST, // O host do banco
-  user: process.env.DB_USER, // O usuário do banco
-  password: process.env.DB_PASS, // A senha do usuário
-  database: process.env.DB_NAME // O nome do banco
-});
-
-// Conectando ao banco de dados
-db.connect((err) => {
-  if (err) {
-    console.error('Erro ao conectar ao banco de dados:', err);
-    process.exit(1);
-  }
-  console.log('Conectado ao banco de dados');
-});
-
-// Adicionando middleware para analisar JSON e dados de formulários (para comunicação fetch entre server e client)
+// Pastas estáticas e middlewares
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Definindo os caminhos estaticos
-/*
-app.use(express.static(__dirname + '/html'));
-app.use(express.static(__dirname + '/assets'));
-app.use(express.static(__dirname + '/js'));
-app.use(express.static(__dirname + '/public/js'));
-app.use(express.static(__dirname + '/public/html'));
-app.use(express.static(__dirname + '/public/assets'));
-app.use(express.static(__dirname));/*/
-app.use(express.static('public'));
-
-// Iniciando o servidor
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
+// Redirecionamento HTTP para HTTPS
+app.use((req, res, next) => {
+  if (req.secure) {
+    next();
+  } else {
+    res.redirect('https://' + req.headers.host + req.url);
+  }
 });
 
-//importando a rota da inscricao
-var inscricaoRoute = require('./routes/inscricaoRoute')(app, db);
+// Configuração da sessão com MySQLStore
+const sessionStore = new MySQLStore({}, db);
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStore,
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 2 // 2 horas
+  }
+}));
 
-//Página não encontrada (ÚLTIMA ROTA!!!!)
+// Inicializando Passport e Flash
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+// Limitador de requisições para login
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 5, // Limite de 5 tentativas por IP
+  message: 'Muitas tentativas de login. Tente novamente após 15 minutos.'
+});
+
+// Rotas de autenticação
+app.use('/auth', require('./routes/authRoutes'));
+
+// Middleware de autenticação
+const ensureAuthenticated = require('./middlewares/authMiddleware');
+
+// Exemplo de rota protegida
+app.get('/pagina-protegida', ensureAuthenticated, (req, res) => {
+  res.send('Esta é uma página protegida');
+});
+
+// Rota para página principal (pública)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Importando e utilizando rotas
+const inscricaoRoute = require('./routes/inscricaoRoute');
+const resultadosRoute = require('./routes/resultadosRoute');
+const adminRoute = require('./routes/adminRoute');
+
+app.use('/inscricao', inscricaoRoute);
+app.use('/resultados', resultadosRoute);
+app.use('/admin', adminRoute);
+
+// Página não encontrada
 app.use((req, res) => {
   res.status(404).send('Desculpe, não conseguimos encontrar isso!');
 });
 
-//Exporta a conexão para outros JS
-module.exports = db;
+// Opções e inicialização do servidor HTTPS
+const httpsOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem'))
+};
 
+https.createServer(httpsOptions, app).listen(port, () => {
+  console.log(`Servidor rodando em https://localhost:${port}`);
+});
+
+// Exportando conexão com banco de dados
+module.exports = db;
