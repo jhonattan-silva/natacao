@@ -1,0 +1,49 @@
+Criado o projeto
+Pastas: 
+assets-imagens
+css-estilos
+html-front
+js-javascript
+
+npm-init no VS para criar o package.json que contera as info de dependencias
+
+criado um projeto no github e vinculado ao git
+
+instalado o nodemon para testar em tempo real as alterações
+e add no package o codigo
+
+  "scripts": {
+    "start": "nodemon server.js",
+
+criado o server.js e adicionado um código generico para poder testar antes de instalar o express
+
+Para rodar o servidor uso o cmd:
+npm run start 
+//onde start é o nome que dei para o script listado ali em cima
+
+Utilização do MySQL
+MySQL Driver: O Node.js usa um driver para se conectar com o MySQL
+npm install mysql2
+
+Instalar o Express para usar o bd corretamente
+npm install express mysql
+
+adicionado para acessar o env com dados do banco
+npm install dotenv
+
+Adicionado o jquery (para o ajax e dom) e o lodash (para o debounce que vai melhorar a eficiencia do ajax)
+npm install jquery lodash
+
+Adicionados módulos para segurança de login/https...
+npm install express-session passport passport-local bcrypt connect-flash express-mysql-session express-rate-limit
+express-session: Sessões e cookies para express
+passport: gerencia autenticação para node (gerencia login)
+passport-local: gerencia autenticação usando usuario e senha local(banco e não só login externo como fb ou google)
+bcrypt: hasheia as senhas antes de salvar no banco
+connect-flash: exibe msgs temporarias no sessão do usuario
+express-mysql-session: adapta o sessions do express para o mysql
+express-rate-limit: limita o numero de solicitações para evitar ddos
+
+Necessario instalar o openssl e configurar para criar um certificado
+mkdir ssl
+openssl req -nodes -new -x509 -keyout ssl/key.pem -out ssl/cert.pem

@@ -1,0 +1,86 @@
+body{
+    background-color: rgb(25, 28, 36) !important;
+  }
+
+
+ h1{
+    padding-top: 2%;
+    padding-bottom: 2%;
+ }
+ 
+ .input-group{
+    width: 50% !important;
+ }
+ 
+.wrap-form{
+    background: linear-gradient(45deg, rgba(204, 63, 145, 0.8), rgba(231, 97, 95, 0.8));
+    border-radius: 10px;
+    padding: 1%;
+}
+
+
+.dropdown-center{
+    margin: 1%;
+}
+
+.fm-classificacao{
+    margin-top: 1%;
+}
+
+.fm-classificacao div{
+    margin-top: 1%;
+    padding-bottom: 4px;
+    margin: 1%;
+}
+
+.fm-classificacao span{
+    font-weight: bold;
+}
+
+.fm-classificacao label{
+    padding-top: 10%;
+    padding-right: 0%;
+    font-weight: bold;
+}
+
+.fm-classificacao button{
+    margin-top: 1%;
+    margin-bottom: 1%;
+    text-align: center;
+}
+
+#lider{
+    background-color: gold;
+}
+
+#segundo{
+    background-color: silver;
+}
+
+#terceiro{
+    background-color: #Cd7f32;
+}
+
+#quarto{
+    background-color: #616161;
+}
+
+#quinto{
+    background-color: #727272;
+}
+
+#sexto{
+    background-color: #918e8e;
+}
+
+#setimo{
+    background-color: #bdbaba;
+}
+
+#oitavo{
+    background-color: #E5E4E2;
+}
+
+#divResultados{
+    display: none;
+}

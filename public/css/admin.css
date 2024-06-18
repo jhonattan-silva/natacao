@@ -1,0 +1,120 @@
+body{
+  background-color: #252C32 !important;
+}
+
+.sidebar{
+	height: 100vh; /* Altura completa da janela */
+}
+
+.tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    margin: 10px;
+    border-radius: 10px;
+   
+  }
+
+  .tile button{
+    font-weight: bold;
+    font-size: 24px;
+    color: beige;
+  }
+
+  .noticias { background-color: #007bff; }
+  .eventos { background-color: #28a745; }
+  .configuracoes { background-color: #dc3545; }
+  .usuarios { background-color: #ffc107; }
+  .balizamento {  background-color: rgb(253, 57, 253);}
+  .equipe {background-color: orangered;}
+
+
+  /*form styles*/
+#frmCadUsuario {
+	width: 80%;
+	margin: 50px auto;
+	text-align: center;
+	position: relative;
+}
+#frmCadUsuario fieldset {
+	background: white;
+	border: 0 none;
+	border-radius: 3px;
+	box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+	padding: 20px 30px;
+	box-sizing: border-box;
+	width: 80%;
+	margin: 0 10%;
+	
+	/*stacking fieldsets above each other*/
+	position: relative;
+}
+/*Hide all except first fieldset*/
+#frmCadUsuario fieldset:not(:first-of-type) {
+	display: none;
+}
+/*inputs*/
+#frmCadUsuario input, #frmCadUsuario textarea {
+	padding: 15px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	font-family: montserrat;
+	color: #2C3E50;
+	font-size: 13px;
+}
+
+/*buttons*/
+#frmCadUsuario .action-button {
+	width: 100px;
+	background: #27AE60;
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 10px;
+	margin: 10px 5px;
+  text-decoration: none;
+  font-size: 14px;
+}
+#frmCadUsuario .action-button:hover, #frmCadUsuario .action-button:focus {
+	box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+}
+
+
+#perfis-container {
+  display: flex; 
+  flex-wrap: wrap; 
+  align-items: flex-start; 
+  gap: 10px; 
+}
+/*
+#perfis-container input[type="checkbox"] {
+  display: block; /* Make each checkbox a block-level element 
+  margin-right: 10px; /* Add horizontal spacing between checkbox and label 
+}
+
+#perfis-container label {
+  display: block; /* Make each label a block-level element 
+  text-align: left; /* Align label text to the left 
+}/*/
+
+
+
+/*headings*/
+.fs-title {
+	font-size: 15px;
+	text-transform: uppercase;
+	color: #2C3E50;
+	margin-bottom: 10px;
+}
+.fs-subtitle {
+	font-weight: normal;
+	font-size: 13px;
+	color: #666;
+	margin-bottom: 20px;
+}

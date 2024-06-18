@@ -1,0 +1,43 @@
+{
+  "name": "liga-paulista-natacao",
+  "version": "1.0.0",
+  "description": "Site da Liga Paulista de Natação",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jhonattan-silva/natacao.git"
+  },
+  "keywords": [
+    "liga-paulista-natacao",
+    "natacao",
+    "campeonato-natacao"
+  ],
+  "author": "Jhonattan Willian Correia Silva",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jhonattan-silva/natacao/issues"
+  },
+  "homepage": "https://github.com/jhonattan-silva/natacao#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.3"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-mysql-session": "^3.0.2",
+    "express-rate-limit": "^7.3.1",
+    "express-session": "^1.18.0",
+    "jquery": "^3.7.1",
+    "lodash": "^4.17.21",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.10.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
+  }
+}
