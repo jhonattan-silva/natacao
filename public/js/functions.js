@@ -46,6 +46,7 @@ export function validarCPF(cpf) {
 
 // Função para gerenciar máscara e validação de CPF
 export function gerenciarCPF() {
+    //LEMBRETE, PARA UTILIZAR A FUNÇÃO DAR O MESMO NAME PARA O HTML
     var cpfValido = false; // CPF válido e preenchido
     var inputCPF = $('input[name="cpf"]');
     inputCPF.mask('000.000.000-00');

@@ -1,0 +1,86 @@
+@font-face {
+    font-family: "Roboto Flex";
+    src: url("https://digitalupgrade.com/images/misc/RobotoFlex-VariableFont_GRADXTRAYOPQYTASYTDEYTFIYTLCYTUCopszslntwdthwght.woff2") format("woff2"); 
+}
+  
+  body {
+    font-family: 'Roboto Flex', sans-serif; 
+    background-color: #252C32 !important;
+}
+
+.container-fluid {
+    display: grid;
+    place-items: center; /* Centraliza horizontal e verticalmente */
+}
+
+/* CSS para centralizar o conteúdo das células da tabela */
+.table td {
+    text-align: center; /* Centraliza o texto horizontalmente */
+    vertical-align: middle; /* Centraliza verticalmente o conteúdo (opcional) */
+}
+
+.table th {
+    text-align: center; /* Centraliza o texto horizontalmente */
+    vertical-align: middle; /* Centraliza verticalmente o conteúdo (opcional) */
+}
+
+
+.resultado-container {
+    width: 80% !important; /* Define a largura desejada para o container da tabela */
+    margin: 0 auto; /* Centraliza o container horizontalmente */
+}
+
+.resultado-container table {
+    width: 100%; /* Garante que a tabela ocupe toda a largura do container */
+}
+
+
+  
+  .group-hover\:transition-transform {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    animation-direction: alternate; }
+  
+  .num {
+    font-size: 10rem;
+    line-height: 0.9;
+    font-weight: 550;
+    font-variation-settings: 'wdth' 35, 'YTFI' 788; }
+  
+  .stretch {
+    font-weight: 500;
+    font-variation-settings: 'wdth' 35;
+    writing-mode: vertical-rl; }
+  
+    .lblnadador{
+        font-size: 3rem;
+        line-height: 0.5;
+        font-weight: 200;
+    }
+
+    .piscina {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+    .raia {
+        display: flex;
+        align-items: center;
+        margin: 5px 0;
+    }
+    .raia-num {
+        width: 30px;
+        font-weight: bold;
+    }
+    .raia-nome {
+        flex-grow: 1;
+    }
+
+    .th-raia {
+        font-size: 3rem;
+        line-height: 0.9;
+        font-weight: 250;
+        font-variation-settings: 'wdth' 35, 'YTFI' 788; 
+        justify-content: center; /* Centraliza horizontalmente */
+        align-items: center; /* Centraliza verticalmente */
+    }

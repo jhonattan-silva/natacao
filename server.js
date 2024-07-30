@@ -22,7 +22,7 @@ const port = process.env.PORT || 3000;
 dotenv.config();
 
 // Pastas estáticas e middlewares
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -81,10 +81,16 @@ app.get('/', (req, res) => {
 const inscricaoRoute = require('./routes/inscricaoRoute');
 const resultadosRoute = require('./routes/resultadosRoute');
 const adminRoute = require('./routes/adminRoute');
+const balizamentoRoute = require('./routes/balizamentoRoute');
+const equipeRoute = require('./routes/equipeRoute');
+const etapasRoute = require('./routes/etapasRoute');
 
 app.use('/inscricao', inscricaoRoute);
 app.use('/resultados', resultadosRoute);
 app.use('/admin', adminRoute);
+app.use('/balizamento', balizamentoRoute);
+app.use('/equipe', equipeRoute);
+app.use('/etapas', etapasRoute);
 
 // Página não encontrada
 app.use((req, res) => {

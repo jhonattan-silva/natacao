@@ -47,3 +47,18 @@ express-rate-limit: limita o numero de solicitações para evitar ddos
 Necessario instalar o openssl e configurar para criar um certificado
 mkdir ssl
 openssl req -nodes -new -x509 -keyout ssl/key.pem -out ssl/cert.pem
+
+Instalação para geração de pdf
+npm install jspdf
+
+****Sempre que adicionar novas páginas e rotas, adicionar no server
+const etapasRoute = require('/routes/etapasRoute');
+app.use('/etapas', etapasRoute);
+**No arquivo route novo:
+const ensureAuthenticated = require('../middlewares/authMiddleware');
+const express = require('express');
+const router = express.Router();
+const pool = require('../config/db'); // Ajuste o caminho conforme necessário
+
+
+

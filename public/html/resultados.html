@@ -25,155 +25,32 @@
 </head>
 <body>
 
-<div id="divEventos">
-    <h1 class="text-white d-flex justify-content-center">Eventos</h1>
-    <div class="container wrap-form">
-        <div id="listaEventos" class="row">
-            <!-- Tiles de eventos serão inseridos aqui -->
-        </div>
-    </div>   
-</div>
-
-
-<div id="divResultados">
-<h1 class="text-white d-flex justify-content-center">REGISTRO DE PROVA</h1>
-<div class="container wrap-form">
-    <h2 id="nomeEventoResultado" class="prova-resultado d-flex justify-content-center text-white"></h2>
-    <div class="dropdown-center d-flex justify-content-center">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-            Selecione o Torneio
-        </button>
-        <ul id="ddTorneios" class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <!-- Itens do Torneio -->
-        </ul>
-    </div>
+    <body>
+        <div class="container mt-4 text-white">
+            <h1>Resultados</h1>
     
-
-    <div class="dropdown-center d-flex justify-content-center">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-            Selecione a Categoria
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            <li><a class="dropdown-item" href="#">Pré-Mirim</a></li>
-            <li><a class="dropdown-item" href="#">Mirim-I</a></li>
-            <li><a class="dropdown-item" href="#">Mirim-II</a></li>
-            <li><a class="dropdown-item" href="#">Petiz-I</a></li>
-            <li><a class="dropdown-item" href="#">Petiz-II</a></li>
-            <li><a class="dropdown-item" href="#">Infantil-I</a></li>
-            <li><a class="dropdown-item" href="#">Infantil-II</a></li>
-            <li><a class="dropdown-item" href="#">Juvenil-I</a></li>
-            <li><a class="dropdown-item" href="#">Juvenil-II</a></li>
-            <li><a class="dropdown-item" href="#">Junior-I</a></li>
-            <li><a class="dropdown-item" href="#">Junior-II</a></li>
-            <li><a class="dropdown-item" href="#">Sênior-I</a></li>
-            <li><a class="dropdown-item" href="#">Sênior-II</a></li>
-        </ul>
-    </div>
-
-    <form class="fm-classificacao">
-        <div class="row" id="lider">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">1º</span>
-                <input type="text" class="form-control" placeholder="Primeiro Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo1" placeholder="Tempo (segundos)">
+            <!-- Select para eventos -->
+            <div class="mb-3">
+                <label for="selectEvento" class="form-label">Selecione um Evento</label>
+                <select id="selectEvento" class="form-select">
+                    <option value="">Selecione</option>
+                </select>
             </div>
-            <div class="col-md-1">
-                <label for="1colocado">+9 Pts</label>
+    
+            <!-- Select para provas -->
+            <div class="mb-3">
+                <label for="selectProva" class="form-label">Selecione uma Prova</label>
+                <select id="selectProva" class="form-select">
+                    <option value="">Selecione</option>
+                </select>
+            </div>
+    
+            <!-- Lista de baterias -->
+            <div class="mb-3">
+                <h3>Baterias</h3>
+                <div id="resultadoContainer"></div>
             </div>
         </div>
-        <div class="row" id="segundo">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">2º</span>
-                <input type="text" class="form-control" placeholder="Segundo Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo2" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="2colocado">+7 Pts</label>
-            </div>
-        </div>
-        <div class="row" id="terceiro">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">3º</span>
-                <input type="text" class="form-control" placeholder="Terceiro Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo3" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="3colocado">+6 Pts</label>
-            </div>
-        </div>
-        <div class="row" id="quarto">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">4º</span>
-                <input type="text" class="form-control" placeholder="Quarto Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo4" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="4colocado">+5 Pts</label>
-            </div>
-        </div>
-        <div class="row" id="quinto">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">5º</span>
-                <input type="text" class="form-control" placeholder="Quinto Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo5" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="5colocado">+4 Pts</label>
-            </div>
-        </div>
-        <div class="row" id="sexto">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">6º</span>
-                <input type="text" class="form-control" placeholder="Sexto Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo6" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="6colocado">+3 Pts</label>
-            </div>
-        </div>
-        <div class="row" id="setimo">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">7º</span>
-                <input type="text" class="form-control" placeholder="Setimo Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo7" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="7colocado">+2 Pts</label>
-            </div>
-        </div>
-        <div class="row" id="oitavo">
-            <div class="input-group col-md-8">
-                <span class="input-group-text">8º</span>
-                <input type="text" class="form-control" placeholder="Oitavo Colocado">
-              </div>
-            <div class="col-3">
-                <input type="number" class="form-control" id="tempo8" placeholder="Tempo (segundos)">
-            </div>
-            <div class="col-md-1">
-                <label for="8colocado">+1 Pt</label>
-            </div>
-        </div>
-        
-        <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-success btn-lg">Fechar Prova</button>
-        </div>
-    </form>
-</div>
-</div>
 
     <!--Bootstrap script-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

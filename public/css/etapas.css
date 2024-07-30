@@ -1,0 +1,30 @@
+/*custom font*/
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+
+/*basic reset*/
+* {margin: 0; padding: 0;}
+
+html {
+	height: 100%;
+}
+
+body {
+	font-family: montserrat, arial, verdana;
+    background-color: #252C32 !important;
+}
+
+/*CPF Invalido*/
+.erro {
+    color: red;
+    display: none;
+}
+
+.form-check {
+    display: table-row !important;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+}
