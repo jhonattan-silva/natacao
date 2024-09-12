@@ -40,27 +40,96 @@
 
     <div class="sidebar">
         <a class="linkEquipe" href="#equipeSection">Equipe</a>
+        <a class="linkNadador" href="#nadadoresSection">Nadadores</a>
         <a class="linkInscricao" href="#inscricaoSection">Inscrições</a>
     </div>
 
 
-    <div id="equipe" class="equipe container-fluid">
+    <!-- Sessão de Equipes -->
+    <section id="equipeSection" class="content text-white d-none">
+        <h1>Gerenciar Equipes</h1>
+
         <div class="row">
-            <label for="selectEquipe">Escolha a Equipe:</label>
-            <select class="form-select" id="selectEquipe">
-                <option value="" disabled selected>Selecione a equipe...</option>
-                <!-- Opções serão preenchidas dinamicamente via JavaScript -->
-            </select>
-        </div>
-        <div class="row">
-            <div class="lista-equipe-container">
-                <!-- A tabela de nadadores será inserida aqui -->
+            <div class="lista-equipes-container">
+                <!--carrega a lista do JS-->
             </div>
         </div>
-    </div>
+
+        <!-- Botão para adicionar nova equipe -->
+        <button id="btnAdicionarEquipe" class="btn btn-primary mb-3">ADICIONAR NOVA EQUIPE</button>
+
+        <!-- Lista de equipes -->
+        <div id="listaEquipes" class="mb-3">
+            <!-- A lista de equipes será preenchida aqui por JavaScript -->
+        </div>
+
+        <!-- Formulário para adicionar/editar equipe -->
+        <div id="formularioEquipe" class="d-none text-white">
+            <h2>Adicionar/Editar Equipe</h2>
+            <form id="formAdicionarEquipe">
+                <input type="hidden" id="equipeId" value="">
+
+                <div class="form-group">
+                    <label for="nomeEquipe">Nome da Equipe:</label>
+                    <input type="text" id="nomeEquipe" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="treinadorInput">Escolha o Técnico:</label>
+                    <input type="text" id="treinadorInput" class="form-control" placeholder="Digite o nome do técnico...">
+                </div>
+                <div id="listaTreinadores" class="list-group mt-2">
+                    <!-- campo oculto para armazenar o ID do treinador -->
+                    <input type="hidden" id="treinadorId" name="treinadorId">
+                    <!-- A lista de treinadores será preenchida aqui pelo JavaScript -->
+                </div>
+
+                <button type="submit" id="btnSalvarEquipe" class="btn btn-success">Salvar</button>
+                <button type="button" id="btnCancelar" class="btn btn-secondary">Cancelar</button>
+            </form>
+        </div>
+
+
+        <div id="equipe" class="equipe container-fluid text-white d-none">
+            <div class="row">
+                <label for="selectEquipe">Escolha a Equipe:</label>
+                <select class="form-select" id="selectEquipe">
+                    <option value="" disabled selected>Selecione a equipe...</option>
+                    <!-- Opções serão preenchidas dinamicamente via JavaScript -->
+                </select>
+            </div>
+            <div class="row">
+                <div class="lista-equipe-container">
+                    <!-- A tabela de nadadores será inserida aqui -->
+                </div>
+            </div>
+            <div class="row mt-3 text-white">
+                <button id="btnAdicionarNadador" class="btn btn-primary d-none">Adicionar Nadador</button>
+            </div>
+        </div>
+    </section><!-- Sessão equipe-->
+
+
+    <!--SESSÃO NADADORES-->
+    <section id="nadadoresSection" class="container-fluid text-white d-none">
+        <h2>Nadadores</h2>
+        <div class="row">
+            <label for="selectEquipeInscricao">Escolha a Equipe:</label>
+            <select class="form-select" id="selectEquipe" class="selectEquipe">
+                <option value="" disabled selected>Selecione a equipe...</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <button id="btnAdicionarNadador" class="btn btn-primary">Adicionar Nadador</button>
+        </div>
+        <div class="lista-nadadores-container">
+            <!-- A tabela de nadadores será inserida aqui pelo JavaScript -->
+        </div>
+    </section>
+
 
     <!--INSCRIÇÃO-->
-    <div id="inscricaoSection" class="container-fluid d-none text-white">
+    <section id="inscricaoSection" class="container-fluid d-none text-white">
         <h2>Inscrições</h2>
         <div class="row">
             <label for="selectEventoInscricao">Escolha o Evento:</label>
@@ -70,7 +139,7 @@
         </div>
         <div class="row">
             <label for="selectEquipeInscricao">Escolha a Equipe:</label>
-            <select class="form-select" id="selectEquipeInscricao">
+            <select class="form-select" id="selectEquipeInscricao" class="selectEquipe">
                 <option value="" disabled selected>Selecione a equipe...</option>
             </select>
         </div>
@@ -80,7 +149,7 @@
         <div class="row mt-3">
             <button type="submit" id="btnInscrever" class="btn btn-primary">Inscrever</button>
         </div>
-    </div>
+    </section>
 
 
 

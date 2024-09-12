@@ -32,20 +32,25 @@ router.get('/buscarProvas', async (req, res) => {
 
 // Rota para buscar baterias e suas inscrições
 router.get('/buscarBaterias', async (req, res) => {
-  const provaId = req.query.provaId;
+  const { provaId } = req.query;  // Recebe o eventoId e provaId da query string
   try {
-      const baterias = await pool.query('SELECT * FROM baterias WHERE provas_id = ?', [provaId]);
+      // Modifique a consulta SQL para incluir o eventoId na cláusula WHERE
+      const [baterias] = await pool.query(
+          'SELECT * FROM baterias WHERE provas_id = ?', 
+          [provaId]
+      );
 
       // Buscar inscrições associadas a cada bateria
       for (let bateria of baterias) {
-          bateria.nadadores = await pool.query(
-            `SELECT n.nome, b.piscina, b.raia
-            FROM baterias_inscricoes b
-            JOIN inscricoes i ON b.Inscricoes_id = i.id
-            JOIN nadadores n ON i.Nadadores_id = n.id
-            WHERE b.Baterias_id = ?`,
+          const [nadadores] = await pool.query(
+              `SELECT n.nome, b.piscina, b.raia, b.tempo_inscricao
+               FROM baterias_inscricoes b
+               JOIN inscricoes i ON b.Inscricoes_id = i.id
+               JOIN nadadores n ON i.Nadadores_id = n.id
+               WHERE b.Baterias_id = ?`,
               [bateria.id]
           );
+          bateria.nadadores = nadadores;
       }
 
       res.json(baterias);
@@ -54,5 +59,6 @@ router.get('/buscarBaterias', async (req, res) => {
       res.status(500).send('Erro ao buscar baterias');
   }
 });
+
 
 module.exports = router;

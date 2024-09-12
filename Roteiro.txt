@@ -5,6 +5,11 @@ css-estilos
 html-front
 js-javascript
 
+GIT:
+git add .
+git commit -m "Nome do Commit"
+git push origin main
+
 npm-init no VS para criar o package.json que contera as info de dependencias
 
 criado um projeto no github e vinculado ao git

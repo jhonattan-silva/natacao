@@ -1,25 +1,167 @@
 import { gerenciarCPF, formatarTelefone, validarTelefone } from './functions.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-    carregarEquipes();
+
     carregarEventos();
     gerenciarCPF();
 
+    // Listener do SIDEBAR (remove o none ao clicar no link e adiciona o none aos outros)
     document.querySelectorAll('.sidebar a').forEach(link => {
-        link.addEventListener('click', function () {
-            document.querySelectorAll('.content > div').forEach(section => section.classList.add('d-none'));
-            document.querySelector(link.getAttribute('href')).classList.remove('d-none');
-            
-            // Esconder divs específicas baseadas no link clicado
-            if (link.getAttribute('href') === '#inscricaoSection') {
-                document.getElementById('equipe').classList.add('d-none');
-            }
+        link.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevenir o comportamento padrão do link
+
+            // Ocultar todas as seções de conteúdo
+            document.querySelectorAll('section').forEach(section => section.classList.add('d-none'));
+
+            const targetSection = document.querySelector(link.getAttribute('href'));
+            targetSection.classList.remove('d-none'); //faz aparecer o clicado
             if (link.getAttribute('href') === '#equipeSection') {
-                document.getElementById('inscricaoSection').classList.add('d-none');
+                console.log("Chamou equipe");
+                listarEquipes();
+            }
+            if (link.getAttribute('href') === '#nadadoresSection') {
+                console.log("Chamou nadadores");
+                carregarEquipesSelect();
+                carregarNadadores(equipeId);
+            }
+            if (link.getAttribute('href') === '#inscricaoSection') {
+                console.log("Chamou inscrição");
+                carregarEquipesSelect();
+                carregarNadadores(equipeId);
             }
         });
     });
 
+
+    /**************************************************************************************************************************** */
+    //ADICIONAR NOVA EQUIPE
+    const btnAdicionarEquipe = document.getElementById('btnAdicionarEquipe');
+    const formularioEquipe = document.getElementById('formularioEquipe');
+    const formAdicionarEquipe = document.getElementById('formAdicionarEquipe');
+    const btnCancelar = document.getElementById('btnCancelar');
+
+    const treinadorInput = document.getElementById('treinadorInput');
+    const listaTreinadores = document.getElementById('listaTreinadores');
+    const treinadorId = document.getElementById('treinadorId');
+    const salvarEquipe = document.getElementById('btnSalvarEquipe');
+
+    // Mostrar o formulário ao clicar no botão "ADICIONAR NOVA EQUIPE"
+    if (btnAdicionarEquipe) {
+        btnAdicionarEquipe.addEventListener('click', function () {
+            formularioEquipe.classList.remove('d-none');
+            formAdicionarEquipe.reset();
+            document.getElementById('equipeId').value = '';
+        });
+    } else {
+        console.error('Elemento #btnAdicionarEquipe não encontrado.');
+    }
+
+    // Ocultar o formulário ao clicar no botão "Cancelar"
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', function () {
+            formularioEquipe.classList.add('d-none');
+        });
+    } else {
+        console.error('Elemento #btnCancelar não encontrado.');
+    }
+
+
+    // Buscar treinadores conforme o usuário digita
+    treinadorInput.addEventListener('input', async (event) => {
+        const query = event.target.value;
+
+        if (query.length >= 1) {
+            try {
+                const response = await fetch(`/equipe/buscarTreinadores?query=${encodeURIComponent(query)}`);
+                const treinadores = await response.json();
+
+                // Limpar a lista antes de adicionar novos resultados
+                listaTreinadores.innerHTML = '';
+
+                treinadores.forEach(treinador => {
+                    const li = document.createElement('li');
+                    li.textContent = treinador.nome;
+                    li.addEventListener('click', () => {
+                        // Atribuir o ID do treinador selecionado ao campo oculto e limpar a lista
+                        treinadorId.value = treinador.id;
+                        treinadorInput.value = treinador.nome; // Atualizar o campo de entrada com o nome selecionado
+                        listaTreinadores.innerHTML = '';
+                    });
+                    listaTreinadores.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Erro ao buscar treinadores:', error);
+            }
+        } else {
+            // Limpar a lista quando o campo de pesquisa estiver vazio
+            listaTreinadores.innerHTML = '';
+        }
+    });
+
+    //Quando clicar em algum nome ou fora
+    treinadorInput.addEventListener('blur', () => {
+        treinadorInput.disabled = true;
+        console.log(treinadorInput.value);
+        console.log(treinadorId.value);
+    });
+
+    //AO SALVAR O FORMULÁRIO
+    formAdicionarEquipe.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const equipeNome = document.getElementById('nomeEquipe').value;
+        console.log(equipeNome);
+        console.log(treinadorId.value);
+
+        // Validação básica
+        if (!equipeNome || !treinadorId) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/equipe/adicionarEquipe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: equipeNome,
+                    treinadorId: treinadorId.value
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(`Equipe adicionada com sucesso! ${data.nome}`); //puxa da 201 do backend
+                formularioEquipe.classList.add('d-none');
+                listarEquipes();
+            } else {
+                const errorData = await response.json(); // Tentar obter informações de erro do servidor
+                alert(`Erro ao adicionar equipe: ${errorData.message || response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Erro ao salvar equipe:', error);
+            alert('Ocorreu um erro inesperado ao conectar-se ao servidor. Por favor, tente novamente mais tarde.');
+        }
+    });
+
+
+    /**************************************************************************************************************************************************************** */
+
+
+    /******************************************* */
+    /** PAGINA NADADORES */
+
+
+
+    /**************************************************************************************************************************************************************** */
+
+    /******************************************* */
+
+    /*PAGINA INSCRIÇÕES*/
+
+    //SELECIONAR A EQUIPE
     const selectEquipe = document.getElementById('selectEquipe');
     if (selectEquipe) {
         selectEquipe.addEventListener('change', function () {
@@ -43,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('Elemento #selectEquipeInscricao não encontrado.');
     }
 
-    
+    //SELECIOA
     const selectEventoInscricao = document.getElementById('selectEventoInscricao');
     if (selectEventoInscricao) {
         selectEventoInscricao.addEventListener('change', function () {
@@ -68,18 +210,20 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const btnInscrever = document.getElementById('btnInscrever');
-if (btnInscrever) {
-    btnInscrever.addEventListener('click', function(event) {
-        event.preventDefault();
-        console.log('Botão de inscrever clicado'); // Verifique se esse log aparece no console
-        salvarInscricao();
-    });
-} else {
-    console.error('Elemento #btnInscrever não encontrado.');
-}
-});
+    if (btnInscrever) {
+        btnInscrever.addEventListener('click', function (event) {
+            event.preventDefault();
+            console.log('Botão de inscrever clicado'); // Verifique se esse log aparece no console
+            salvarInscricao();
+        });
+    } else {
+        console.error('Elemento #btnInscrever não encontrado.');
+    }
+}); //FECHA O DOM
 
-function carregarEquipes() {
+
+
+function carregarEquipesSelect() {
     fetch('/equipe/buscarEquipes')
         .then(response => {
             if (!response.ok) {
@@ -105,6 +249,126 @@ function carregarEquipes() {
             console.error('Erro ao carregar equipes:', error);
         });
 }
+
+function listarEquipes() {
+    let ordenacao = {
+        coluna: 'nome',
+        ordem: 'asc'
+    };
+
+    fetch('/equipe/listarEquipes')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro listar equipes: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(equipes => {
+            const listaEquipeContainer = document.querySelector('.lista-equipes-container');
+            listaEquipeContainer.innerHTML = '';
+
+            const tabela = criarTabela();
+            listaEquipeContainer.appendChild(tabela);
+
+            atualizarTabela(equipes, tabela);
+
+            // Selecionar Cabeçalhos
+            const thEquipe = tabela.querySelector('thead th:nth-child(1)');
+            const thTreinador = tabela.querySelector('thead th:nth-child(2)');
+
+            // Função para adicionar/atualizar ícone de ordenação
+            function atualizarIconeOrdenacao(th, coluna) {
+                const icone = th.querySelector('i');
+                if (icone) {
+                    icone.classList.remove('fa-sort-up', 'fa-sort-down');
+                    icone.classList.add(ordenacao.coluna === coluna && ordenacao.ordem === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+                } else {
+                    th.innerHTML += ' <i class="fas fa-sort"></i>';
+                    atualizarIconeOrdenacao(th, coluna);
+                }
+            }
+
+            // Função para lidar com o clique nos cabeçalhos
+            function ordenarTabela(coluna) {
+                ordenacao.coluna = coluna;
+                ordenacao.ordem = ordenacao.ordem === 'asc' ? 'desc' : 'asc';
+                equipes = ordenarDados(equipes, ordenacao.coluna, ordenacao.ordem);
+                atualizarTabela(equipes, tabela);
+                atualizarIconeOrdenacao(thEquipe, 'equipe');
+                atualizarIconeOrdenacao(thTreinador, 'treinador');
+            }
+
+            // Adicionando o evento de clique aos cabeçalhos
+            thEquipe.addEventListener('click', () => ordenarTabela('equipe'));
+            thTreinador.addEventListener('click', () => ordenarTabela('treinador'));
+        })
+        .catch(error => {
+            console.error('Erro ao carregar equipes:', error);
+        });
+}
+
+
+function criarTabela() {
+    const tabela = document.createElement('table');
+    tabela.classList.add('table', 'table-sm', 'table-hover', 'table-striped', 'text-white');
+
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const thEquipe = document.createElement('th');
+    thEquipe.textContent = 'Equipe';
+    const thTreinador = document.createElement('th');
+    thTreinador.textContent = 'Treinador';
+    const thAcoes = document.createElement('th');
+    thAcoes.textContent = 'Ações';
+    headerRow.appendChild(thEquipe);
+    headerRow.appendChild(thTreinador);
+    headerRow.appendChild(thAcoes);
+    thead.appendChild(headerRow);
+    tabela.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    tabela.appendChild(tbody);
+
+    return tabela;
+}
+
+function atualizarTabela(dados, tabela) {
+    const tbody = tabela.querySelector('tbody');
+    tbody.innerHTML = '';
+
+    dados.forEach(equipe => {
+        const row = tbody.insertRow();
+
+        const cellEquipe = row.insertCell();
+        cellEquipe.textContent = equipe.equipe;
+
+        const cellTreinador = row.insertCell();
+        cellTreinador.textContent = equipe.treinador;
+
+        const cellAcoes = row.insertCell();
+        cellAcoes.classList.add('cellAcoes');
+        cellAcoes.innerHTML = `
+            <button class="btn btn-sm btn-primary" onclick="abrirModalEditarAdicionarEquipe(${equipe.id})">Editar</button>
+            <button class="btn btn-sm btn-danger" onclick="removerEquipe(${equipe.id})">Remover</button>
+        `;
+    });
+}
+
+function ordenarDados(dados, coluna, ordem) {
+    return dados.sort((a, b) => {
+      const aValue = a[coluna].toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+      const bValue = b[coluna].toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+  
+      if (aValue < bValue) {
+        return ordem === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return ordem === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
 
 function carregarEventos() {
     fetch('/equipe/buscarEventos')

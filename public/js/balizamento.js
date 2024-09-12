@@ -14,6 +14,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // Seleciona a tabela onde os nadadores estão listados
         const tableBody = document.querySelector('#listaInscritos tbody');
 
+
+        if (!tableBody) {
+            console.error('Tabela de inscritos não encontrada.');
+            return; // Sai da função se a tabela não for encontrada
+        }
+
+
         // Cria um array para armazenar os nadadores com seus tempos de record
         const nadadores = [];
 
@@ -238,36 +245,6 @@ function carregarEventos() {
         });
 }
 
-function carregarProvas(eventoId) {
-    console.log('Carregando provas para o evento com ID:', eventoId);
-    fetch(`/balizamento/buscarProvas?eventoId=${eventoId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar provas');
-            }
-            return response.json();
-        })
-        .then(provas => {
-            const provaSelect = document.getElementById('selectProva');
-            provaSelect.innerHTML = ''; // Limpa as opções atuais
-
-            provas.forEach(prova => {
-                const option = document.createElement('option');
-                option.value = prova.id;
-                option.textContent = prova.nome;
-                provaSelect.appendChild(option);
-            });
-            // Adicionar evento para carregar inscritos ao selecionar uma prova
-            provaSelect.addEventListener('change', () => {
-                const provaId = provaSelect.value;
-                carregarInscritos(provaId);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar provas:', error);
-        });
-}
-
 function carregarInscritos(provaId) {
     console.log('Carregando inscritos para a prova com ID:', provaId);
     fetch(`/balizamento/buscarInscritos?provaId=${provaId}`)
@@ -321,6 +298,36 @@ function carregarInscritos(provaId) {
         })
         .catch(error => {
             console.error('Erro ao carregar inscritos:', error);
+        });
+}
+
+function carregarProvas(eventoId) {
+    console.log('Carregando provas para o evento com ID:', eventoId);
+    fetch(`/balizamento/buscarProvas?eventoId=${eventoId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar provas');
+            }
+            return response.json();
+        })
+        .then(provas => {
+            const provaSelect = document.getElementById('selectProva');
+            provaSelect.innerHTML = ''; // Limpa as opções atuais
+
+            provas.forEach(prova => {
+                const option = document.createElement('option');
+                option.value = prova.id;
+                option.textContent = prova.nome;
+                provaSelect.appendChild(option);
+            });
+            // Adicionar evento para carregar inscritos ao selecionar uma prova
+            provaSelect.addEventListener('change', () => {
+                const provaId = provaSelect.value;
+                carregarInscritos(provaId);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar provas:', error);
         });
 }
 
