@@ -88,25 +88,6 @@
                 <button type="button" id="btnCancelar" class="btn btn-secondary">Cancelar</button>
             </form>
         </div>
-
-
-        <div id="equipe" class="equipe container-fluid text-white d-none">
-            <div class="row">
-                <label for="selectEquipe">Escolha a Equipe:</label>
-                <select class="form-select" id="selectEquipe">
-                    <option value="" disabled selected>Selecione a equipe...</option>
-                    <!-- Opções serão preenchidas dinamicamente via JavaScript -->
-                </select>
-            </div>
-            <div class="row">
-                <div class="lista-equipe-container">
-                    <!-- A tabela de nadadores será inserida aqui -->
-                </div>
-            </div>
-            <div class="row mt-3 text-white">
-                <button id="btnAdicionarNadador" class="btn btn-primary d-none">Adicionar Nadador</button>
-            </div>
-        </div>
     </section><!-- Sessão equipe-->
 
 
@@ -150,58 +131,6 @@
             <button type="submit" id="btnInscrever" class="btn btn-primary">Inscrever</button>
         </div>
     </section>
-
-
-
-    <!-- Modal de Edição -->
-    <!-- Modal para editar/adicionar nadador -->
-    <div id="editarNadadorModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Editar/Adicionar Nadador</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="formEditarAdicionarNadador">
-                        <input type="hidden" id="id" name="id">
-                        <!-- Nome -->
-                        <div class="form-group">
-                            <label for="nome">Nome</label>
-                            <input name="nome" type="text" class="form-control" id="nome" required>
-                        </div>
-                        <!-- CPF -->
-                        <div class="form-group">
-                            <label for="cpf">CPF</label>
-                            <input name="cpf" type="text" class="form-control" id="cpf" required>
-                        </div>
-                        <!-- Data de Nascimento -->
-                        <div class="form-group">
-                            <label for="data-nasc">Data de Nascimento</label>
-                            <input name="data-nasc" type="date" class="form-control" id="data-nasc" required>
-                        </div>
-                        <!-- Telefone -->
-                        <div class="form-group">
-                            <label for="telefone">Telefone</label>
-                            <input name="fone" type="text" class="form-control" id="telefone" required>
-                        </div>
-                        <!-- Sexo -->
-                        <div class="form-group">
-                            <label for="sexo">Sexo</label>
-                            <select name="sexo" class="form-control" id="sexo" required>
-                                <option value="M">Masculino</option>
-                                <option value="F">Feminino</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Salvar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div><!--Fecha modal edição-->
 
 
     <!-- Botão de subir para o topo -->

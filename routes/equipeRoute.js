@@ -2,17 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/db'); // Ajuste o caminho conforme necessário
 
-// Rota para adicionar uma nova equipe
-// router.post('/adicionarEquipe', async (req, res) => {
-//     const { nome } = req.body;
-//     try {
-//         await pool.query('INSERT INTO equipes (nome) VALUES (?)', [nome]);
-//         res.status(201).send('Equipe adicionada com sucesso');
-//     } catch (error) {
-//         console.error('Erro ao adicionar equipe:', error);
-//         res.status(500).send('Erro ao adicionar equipe');
-//     }
-// });
+
 router.post('/adicionarEquipe', async (req, res) => {
     const { nome, treinadorId } = req.body;
 
@@ -65,7 +55,7 @@ router.put('/editarEquipe/:id', async (req, res) => {
 // Rota para obter as equipes e seus respectivos treinadores
 router.get('/listarEquipes', async (req, res) => {
     try {
-        const [equipes] = await pool.query('SELECT e.nome AS equipe, u.nome AS treinador FROM equipes e JOIN usuarios_equipes ue ON e.id = ue.equipes_id JOIN usuarios u ON ue.usuarios_id = u.id');
+        const [equipes] = await pool.query('SELECT e.nome AS equipe, e.id AS id, u.nome AS treinador FROM equipes e JOIN usuarios_equipes ue ON e.id = ue.equipes_id JOIN usuarios u ON ue.usuarios_id = u.id');
         res.json(equipes);
     } catch (error) {
         console.error('Erro ao buscar equipes:', error);
@@ -123,6 +113,20 @@ router.get('/buscarNadador', async (req, res) => {
     }
 });
 
+
+//Rota para adicionar Nadador
+router.post('/adicionarNadador', async (req, res) => {
+    const { nome, cpf, data_nasc, telefone, sexo, equipeId } = req.body;
+
+    try {
+        // Insere um novo registro no banco de dados
+        const [result] = await pool.query('INSERT INTO nadadores (nome, cpf, data_nasc, telefone, sexo, equipes_id) VALUES (?, ?, ?, ?, ?, ?)', [nome, cpf, data_nasc, telefone, sexo, equipeId]);
+        res.status(201).json({ id: result.insertId }); // Retorna o ID do novo nadador
+    } catch (error) {
+        console.error('Erro ao adicionar nadador:', error);
+        res.status(500).send('Erro ao adicionar nadador');
+    }
+});
 
 
 // Rota para editar um nadador
