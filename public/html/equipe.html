@@ -100,6 +100,16 @@
                 <option value="" disabled selected>Selecione a equipe...</option>
             </select>
         </div>
+        <div class="row">
+            <div class="lista-nadadores-container">
+                <!--carrega a lista do JS-->
+            </div>
+        </div>
+        <div id="listaNadadores" class="list-group mt-2">
+            <!-- campo oculto para armazenar o ID do treinador -->
+            <input type="hidden" id="nadadorId" name="nadadorId">
+            <!-- A lista de nadadores será preenchida aqui pelo JavaScript -->
+        </div>
         <div class="mb-3">
             <button id="btnAdicionarNadador" class="btn btn-primary">Adicionar Nadador</button>
         </div>

@@ -83,19 +83,20 @@ router.get('/buscarTreinadores', async (req, res) => {
 
 // Rota para obter os nadadores de uma equipe específica
 router.get('/buscarNadadores', async (req, res) => {
-    const equipeId = req.query.equipeId;
-    if (!equipeId) {
-        return res.status(400).send('Equipe ID é necessário');
+    const equipeId = parseInt(req.query.equipeId);
+  
+    if (!equipeId || equipeId <= 0) {
+      return res.status(400).send('Equipe ID inválido');
     }
-
+  
     try {
-        const [nadadores] = await pool.query('SELECT * FROM nadadores WHERE equipes_id = ?', [equipeId]);
-        res.json(nadadores);
+      const [nadadores] = await pool.query('SELECT id, nome FROM nadadores WHERE equipes_id = ?', [equipeId]);
+      res.json(nadadores);
     } catch (error) {
-        console.error('Erro ao buscar nadadores:', error);
-        res.status(500).send('Erro ao buscar nadadores');
+      console.error('Erro ao buscar nadadores:', error);
+      res.status(500).send('Erro ao buscar nadadores: ' + error.message);
     }
-});
+  });
 
 // Rota para obter os dados de um nadador específico
 router.get('/buscarNadador', async (req, res) => {
