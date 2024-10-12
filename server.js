@@ -78,14 +78,12 @@ app.get('/', (req, res) => {
 });
 
 // Importando e utilizando rotas
-const inscricaoRoute = require('./routes/inscricaoRoute');
 const resultadosRoute = require('./routes/resultadosRoute');
 const adminRoute = require('./routes/adminRoute');
 const balizamentoRoute = require('./routes/balizamentoRoute');
 const equipeRoute = require('./routes/equipeRoute');
 const etapasRoute = require('./routes/etapasRoute');
 
-app.use('/inscricao', inscricaoRoute);
 app.use('/resultados', resultadosRoute);
 app.use('/admin', adminRoute);
 app.use('/balizamento', balizamentoRoute);

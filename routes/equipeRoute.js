@@ -63,9 +63,10 @@ router.get('/listarEquipes', async (req, res) => {
     }
 });
 
+
+//Rota para buscar treinadores por nome
 router.get('/buscarTreinadores', async (req, res) => {
     const query = req.query.query;
-
     try {
         const [treinadores] = await pool.query(`
             SELECT id, nome
@@ -119,9 +120,11 @@ router.get('/buscarNadador', async (req, res) => {
 router.post('/adicionarNadador', async (req, res) => {
     const { nome, cpf, data_nasc, telefone, sexo, equipeId } = req.body;
 
+    const cpfNumeros = cpf.replace(/\D/g, '');
+
     try {
         // Insere um novo registro no banco de dados
-        const [result] = await pool.query('INSERT INTO nadadores (nome, cpf, data_nasc, telefone, sexo, equipes_id) VALUES (?, ?, ?, ?, ?, ?)', [nome, cpf, data_nasc, telefone, sexo, equipeId]);
+        const [result] = await pool.query('INSERT INTO nadadores (nome, cpf, data_nasc, telefone, sexo, equipes_id) VALUES (?, ?, ?, ?, ?, ?)', [nome, cpfNumeros, data_nasc, telefone, sexo, equipeId]);
         res.status(201).json({ id: result.insertId }); // Retorna o ID do novo nadador
     } catch (error) {
         console.error('Erro ao adicionar nadador:', error);
@@ -164,7 +167,7 @@ router.delete('/removerNadador/:id', async (req, res) => {
 });
 
 
-router.get('/buscarEventos', async (req, res) => {
+router.get('/listarEventos', async (req, res) => {
     try {
         const [eventos] = await pool.query('SELECT * FROM eventos');
         res.json(eventos);
@@ -182,7 +185,7 @@ router.get('/buscarProvas', async (req, res) => {
     }
 
     try {
-        const [provas] = await pool.query('SELECT * FROM provas WHERE eventos_id = ?', [eventoId]);
+        const [provas] = await pool.query('SELECT * FROM eventos_provas WHERE eventos_id = ?', [eventoId]);
         res.json(provas);
     } catch (error) {
         console.error('Erro ao buscar provas:', error);
@@ -190,22 +193,57 @@ router.get('/buscarProvas', async (req, res) => {
     }
 });
 
-// Rota para salvar a inscrição dos nadadores nas provas
-router.post('/salvarInscricao', async (req, res) => {
-    const { eventoId, inscricoes } = req.body;
+
+// Rota para obter as provas de um evento específico e os nadadores da equipe para inscrição
+router.get('/eventoEquipe', async (req, res) => {
+    const eventoId = req.query.eventoId;
+    const equipeId = req.query.equipeId;
+
+    if (!eventoId || !equipeId) {
+        return res.status(400).send('Evento e Equipe ID são necessários');
+    }
 
     try {
-        for (const inscricao of inscricoes) {
-            const { nadadorId, provaId } = inscricao;
-            await pool.query('INSERT INTO inscricoes (nadadores_id, provas_id, eventos_id) VALUES (?, ?, ?)', [nadadorId, provaId, eventoId]);
-        }
-        res.sendStatus(200);
+        // Buscar provas do evento com detalhes das provas
+        const [provas] = await pool.query(`
+            SELECT p.*, ep.* 
+            FROM eventos_provas ep
+            JOIN provas p ON ep.provas_id = p.id
+            WHERE ep.eventos_id = ?`, [eventoId]);
+
+        // Buscar nadadores da equipe
+        const [nadadores] = await pool.query('SELECT * FROM nadadores WHERE equipes_id = ?', [equipeId]);
+        
+        // Retornar os dados em um objeto
+        res.json({ provas, nadadores });
     } catch (error) {
-        console.error('Erro ao salvar inscrição:', error);
-        res.status(500).send('Erro ao salvar inscrição');
+        console.error('Erro ao buscar provas e nadadores:', error);
+        res.status(500).send('Ocorreu um erro ao buscar os dados.');
     }
 });
 
 
+
+// Rota para salvar a inscrição dos nadadores nas provas
+router.post('/salvarInscricao',  async (req, res) => {
+    const nadadoresInscritos = req.body; // Espera receber um array de objetos
+    console.log(nadadoresInscritos);
+    
+
+    try {
+        // Aqui você deve inserir os dados no banco de dados
+        for (const inscricao of nadadoresInscritos) {
+            const { nadadorId, provaId, eventoId } = inscricao;
+
+            // Insira a lógica para salvar a inscrição no banco de dados
+            await pool.query('INSERT INTO inscricoes (Nadadores_id, Eventos_id, Eventos_Provas_id) VALUES (?, ?, ?)', [nadadorId, eventoId, provaId]);
+        }
+
+        res.json({ message: 'Inscrições realizadas com sucesso!' });
+    } catch (error) {
+        console.error('Erro ao realizar inscrição:', error);
+        res.status(500).send('Erro ao realizar inscrição.');
+    }
+});
 
 module.exports = router;

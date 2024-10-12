@@ -24,39 +24,43 @@ router.get('/torneios', async (req, res) => {
     }
 });
 
-// Rota para obter todas as provas
+// Rota para obter provas filtradas por sexo
 router.get('/provas', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT id, estilo, distancia, tipo FROM tipoprovas');
+      const sexo = req.query.sexo; // Obtém o parâmetro 'sexo' da query string
+      let query = 'SELECT id, estilo, distancia, tipo FROM provas';
+  
+      if (sexo) {
+        query += ' WHERE sexo = ?'; // Adiciona a cláusula WHERE se 'sexo' for fornecido
+        const [rows] = await pool.query(query, [sexo]); // Passa o parâmetro 'sexo' como valor
         res.json(rows);
+      } else {
+        // Caso não seja fornecido o parâmetro 'sexo', retorna todas as provas
+        const [rows] = await pool.query(query);
+        res.json(rows);
+      }
     } catch (error) {
-        console.error('Erro ao carregar provas:', error);
-        res.status(500).json({ error: 'Erro ao carregar provas' });
+      console.error('Erro ao carregar provas:', error);
+      res.status(500).json({ error: 'Erro ao carregar provas' });
     }
-});
+  });
 
 router.post('/cadastrar', async (req, res) => {
     const { nome, data, cidade, sede, endereco, Torneios_id, provas } = req.body;
 
     try {
-        // Inserir o evento na tabela eventos
+        // Cria o evento na tabela eventos
         const [result] = await pool.query('INSERT INTO eventos (nome, data, cidade, sede, endereco, Torneios_id) VALUES (?, ?, ?, ?, ?, ?)', [nome, data, cidade, sede, endereco, Torneios_id]);
-        const eventoId = result.insertId;
+        const eventoId = result.insertId; //vai retornar o id desse novo evento (ferramenta do driver mysql2)
 
         // Inserir as provas na tabela provas
         for (const prova of provas) {
-            // Buscar informações da prova da tabela tipoprovas para concatenar no nome
-            const [tipoProva] = await pool.query('SELECT estilo, distancia, tipo FROM tipoprovas WHERE id = ?', [prova.TipoProvas_id]);
-
-            // Construir o nome concatenando os valores
-            const nomeProva = `${tipoProva[0].estilo} ${tipoProva[0].distancia}m (${tipoProva[0].tipo}) ${prova.sexo}`;
-
-            await pool.query('INSERT INTO provas (TipoProvas_id, Eventos_id, sexo, nome) VALUES (?, ?, ?, ?)', [prova.TipoProvas_id, eventoId, prova.sexo, nomeProva]);
+            await pool.query('INSERT INTO eventos_provas (eventos_id, provas_id) VALUES (?, ?)', [eventoId, prova.provas_id]);        
         }
 
         // Buscar o evento cadastrado junto com as provas
         const [evento] = await pool.query('SELECT * FROM eventos WHERE id = ?', [eventoId]);
-        const [provasCadastradas] = await pool.query('SELECT * FROM provas WHERE Eventos_id = ?', [eventoId]);
+        const [provasCadastradas] = await pool.query('SELECT * FROM eventos_provas WHERE Eventos_id = ?', [eventoId]);
 
         res.json({ ...evento[0], provas: provasCadastradas });
     } catch (error) {

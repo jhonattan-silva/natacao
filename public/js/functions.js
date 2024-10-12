@@ -78,18 +78,19 @@ export function gerenciarCPF() {
 }
 
 
-// Função para formatar telefone
-export function formatarTelefone(telefone) {
-    telefone = telefone.replace(/\D/g, ''); // Remove caracteres não numéricos
-    telefone = telefone.replace(/^(\d{2})(\d)/g, '($1) $2');
-    telefone = telefone.replace(/(\d)(\d{4})$/, '$1-$2');
-    return telefone;
+// Função para formatar celular
+export function formatarCelular() {
+    let celular = $('input[name="Celular"]').val(); // Recebe somente o valor do input
+    celular = celular.replace(/\D/g, ''); // Remove caracteres não numéricos
+    celular = celular.replace(/^(\d{2})(\d)/g, '($1) $2');
+    celular = celular.replace(/(\d)(\d{4})$/, '$1-$2');
+    return celular;
 }
 
-// Função para validar telefone
-export function validarTelefone(telefone) {
-    telefone = telefone.replace(/\D/g, '');
-    // Lógica de validação de telefone
+// Função para validar celular
+export function validarcelular(celular) {
+    celular = celular.replace(/\D/g, '');
+    // Lógica de validação de celular
     // ...
     return true;
 }

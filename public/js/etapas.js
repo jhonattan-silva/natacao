@@ -1,11 +1,12 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const novoEventoBtn = document.getElementById('novoEventoBtn');
     const tabelaEventos = document.getElementById('tabelaEventos');
 
-    novoEventoBtn.addEventListener('click', function() {
+    novoEventoBtn.addEventListener('click', function () {
         tabelaEventos.style.display = 'none'; // Oculta a tabela de eventos
         carregarTorneios();
-        carregarProvas();
+        carregarProvasMasculinas();
+        carregarProvasFemininas();
         document.getElementById('etapaForm').style.display = 'block'; // Mostra o formulário de novo evento
     });
 
@@ -87,7 +88,7 @@ async function carregarTorneios() {
     }
 }
 
-async function carregarProvas() {
+/* async function carregarProvas() {
     try {
         const response = await fetch('/etapas/provas');
         if (!response.ok) {
@@ -140,9 +141,73 @@ async function carregarProvas() {
     } catch (error) {
         console.error('Erro ao carregar provas:', error);
     }
+} */
+
+async function carregarProvasMasculinas() {
+    try {
+        const response = await fetch('/etapas/provas?sexo=M');
+        if (!response.ok) {
+            throw new Error('Erro ao carregar provas masculinas');
+        }
+        const provasMasculinas = await response.json();
+        provasMasculinas.forEach(prova => {
+            // Criação do checkbox e label para provas masculinas
+            const divMasculino = document.createElement('div');
+            divMasculino.classList.add('form-check', 'mb-2'); // Adicionando margem inferior
+
+            const checkboxMasculino = document.createElement('input');
+            checkboxMasculino.type = 'checkbox';
+            checkboxMasculino.classList.add('form-check-input', 'me-2'); // Adicionando margem à direita
+            checkboxMasculino.name = 'provasMasculino';
+            checkboxMasculino.value = prova.id;
+            checkboxMasculino.setAttribute('data-id', prova.id); // Adicionando o atributo data-id
+            divMasculino.appendChild(checkboxMasculino);
+
+            const labelMasculino = document.createElement('label');
+            labelMasculino.classList.add('form-check-label');
+            labelMasculino.textContent = `${prova.estilo} ${prova.distancia}m (${prova.tipo})`;
+            labelMasculino.setAttribute('for', `checkboxMasculino${prova.id}`);
+            divMasculino.appendChild(labelMasculino);
+
+            provasMasculinasContainer.appendChild(divMasculino);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar provas masculinas:', error);
+    }
 }
 
+async function carregarProvasFemininas() {
+    try {
+        const response = await fetch('/etapas/provas?sexo=F');
+        if (!response.ok) {
+            throw new Error('Erro ao carregar provas femininas');
+        }
+        const provasFemininas = await response.json();
+        provasFemininas.forEach(prova => {
+            // Criação do checkbox e label para provas femininas
+            const divFeminino = document.createElement('div');
+            divFeminino.classList.add('form-check', 'mb-2'); // Adicionando margem inferior
 
+            const checkboxFeminino = document.createElement('input');
+            checkboxFeminino.type = 'checkbox';
+            checkboxFeminino.classList.add('form-check-input', 'me-2'); // Adicionando margem à direita
+            checkboxFeminino.name = 'provasFeminino';
+            checkboxFeminino.value = prova.id;
+            checkboxFeminino.setAttribute('data-id', prova.id); // Adicionando o atributo data-id
+            divFeminino.appendChild(checkboxFeminino);
+
+            const labelFeminino = document.createElement('label');
+            labelFeminino.classList.add('form-check-label');
+            labelFeminino.textContent = `${prova.estilo} ${prova.distancia}m (${prova.tipo})`;
+            labelFeminino.setAttribute('for', `checkboxFeminino${prova.id}`);
+            divFeminino.appendChild(labelFeminino);
+
+            provasFemininasContainer.appendChild(divFeminino);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar provas femininas:', error);
+    }
+}
 
 
 async function cadastrarEtapa(event) {
@@ -161,13 +226,11 @@ async function cadastrarEtapa(event) {
     }
 
     const provasMasculinas = Array.from(document.querySelectorAll('#provasMasculinasContainer input[name="provasMasculino"]:checked')).map(input => ({
-        TipoProvas_id: input.value,
-        sexo: 'M'
-    }));
+        provas_id: input.getAttribute('data-id'),
+      }));
 
     const provasFemininas = Array.from(document.querySelectorAll('#provasFemininasContainer input[name="provasFeminino"]:checked')).map(input => ({
-        TipoProvas_id: input.value,
-        sexo: 'F'
+        provas_id: input.getAttribute('data-id'),
     }));
 
     const provas = [...provasMasculinas, ...provasFemininas];

@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     carregarEventos();
 
     // Seleciona o botão de balizamento
-    const btnBalizar = document.querySelector('.btn-primary');
+    const btnBalizar = document.getElementById('btnBalizar');
 
     // Adiciona evento de clique ao botão
     btnBalizar.addEventListener('click', function () {
@@ -13,13 +13,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Seleciona a tabela onde os nadadores estão listados
         const tableBody = document.querySelector('#listaInscritos tbody');
-
-
-        if (!tableBody) {
-            console.error('Tabela de inscritos não encontrada.');
-            return; // Sai da função se a tabela não for encontrada
-        }
-
 
         // Cria um array para armazenar os nadadores com seus tempos de record
         const nadadores = [];
@@ -75,14 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Distribui os nadadores nas raias conforme a lógica
         grupos.forEach((grupo, index) => {
-            /*ANTES - na ordem do mais rápido
-             const raia1 = grupo[4];
-             const raia2 = grupo[2];
-             const raia3 = grupo[0];
-             const raia4 = grupo[1];
-             const raia5 = grupo[3];
-             const raia6 = grupo[5];
-             */
             const raia1 = grupo[1];
             const raia2 = grupo[3];
             const raia3 = grupo[5];
@@ -212,8 +197,6 @@ function formatarTempo(tempoEmSegundos) {
     return `${horas}:${minutos}:${segundos}`;
 }
 
-
-
 function carregarEventos() {
     fetch('/balizamento/buscarEventos')
         .then(response => {
@@ -232,12 +215,6 @@ function carregarEventos() {
                 const dataFormatada = new Date(evento.data).toLocaleDateString('pt-BR'); //formatar a data para aparecer na sequancia
                 option.textContent = `${evento.nome} - ${dataFormatada}`;
                 eventoSelect.appendChild(option);
-            });
-
-            // Adicionar evento para carregar provas ao selecionar um evento
-            eventoSelect.addEventListener('change', () => {
-                const eventoId = eventoSelect.value;
-                carregarProvas(eventoId);
             });
         })
         .catch(error => {
