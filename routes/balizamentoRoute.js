@@ -6,72 +6,90 @@ const pool = require('../config/db');
 // Rota para obter todos os eventos disponíveis
 router.get('/buscarEventos', async (req, res) => {
     try {
-      const [eventos] = await pool.query('SELECT * FROM eventos');
-      res.json(eventos);
+        const [eventos] = await pool.query('SELECT * FROM eventos');
+        res.json(eventos);
     } catch (error) {
-      console.error('Erro ao buscar eventos:', error);
-      res.status(500).send('Erro ao buscar eventos');
+        console.error('Erro ao buscar eventos:', error);
+        res.status(500).send('Erro ao buscar eventos');
     }
-  });
+});
 
-
-  router.get('/buscarProvas', async (req, res) => {
+router.get('/listarInscritos/', async (req, res) => {
     const eventoId = req.query.eventoId;
     if (!eventoId) {
         return res.status(400).send('Evento ID é necessário');
     }
-
     try {
-        const [provas] = await pool.query('SELECT * FROM provas WHERE eventos_id = ?', [eventoId]);
-        console.log('Provas encontradas:', provas);
-        res.json(provas);
-    } catch (error) {
-        console.error('Erro ao buscar provas:', error);
-        res.status(500).send('Erro ao buscar provas');
-    }
-});
-
-
-// Rota para obter os nadadores inscritos em uma prova específica com seus records e tipo de prova
-router.get('/buscarInscritos', async (req, res) => {
-    const provaId = req.query.provaId;
-    if (!provaId) {
-        return res.status(400).send('Prova ID é necessário');
-    }
-
-    try {
-        const [inscritos] = await pool.query(`
+        const [rows] = await pool.query(`
             SELECT 
-                nadadores.id AS nadador_id, 
-                nadadores.nome, 
-                records.tempo AS record, 
-                provas.tipoprovas_id, 
-                provas.nome AS prova_nome,
-                inscricoes.id AS Inscricoes_id  -- Certifique-se de selecionar o Inscricoes_id aqui
-            FROM 
-                inscricoes 
-            INNER JOIN 
-                nadadores ON inscricoes.Nadadores_id = nadadores.id 
-            LEFT JOIN 
-                records ON nadadores.id = records.Nadadores_id 
-            LEFT JOIN 
-                provas ON inscricoes.Provas_id = provas.id
-            LEFT JOIN 
-                provas AS provas_records ON records.Provas_id = provas_records.id
-            WHERE 
-                inscricoes.Provas_id = ? 
-                AND (provas_records.tipoprovas_id = provas.tipoprovas_id OR records.tempo IS NULL);
-        `, [provaId]);        
-        console.log('Nadadores inscritos encontrados:', inscritos);
-        res.json(inscritos);
+                CONCAT(p.estilo, ' ', p.distancia, 'm ', p.tipo, ' ', p.sexo) AS nome_prova,  -- Concatena as colunas para formar o nome da prova
+                n.nome AS nome_nadador,
+                COALESCE(r.tempo, 'Sem recorde') AS melhor_tempo
+            FROM
+                inscricoes i
+            INNER JOIN nadadores n ON i.nadadores_id = n.id
+            INNER JOIN eventos_provas ep ON i.eventos_provas_id = ep.id
+            INNER JOIN provas p ON ep.provas_id = p.id
+            LEFT JOIN records r ON n.id = r.nadadores_id AND ep.provas_id = r.provas_id
+            WHERE
+                i.eventos_id = ?
+            ORDER BY p.estilo, p.distancia, p.tipo, p.sexo, r.tempo;
+        `, [eventoId]);
+
+        res.json(rows);
     } catch (error) {
         console.error('Erro ao buscar inscritos:', error);
-        res.status(500).send('Erro ao buscar inscritos');
+        res.status(500).send('Erro ao buscar inscrições');
+    }
+});
+
+router.post('/salvarBaterias', async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        const { baterias, eventos_id, tipoProvas_id } = req.body; // Recebe os dados das baterias, eventos e tipo de provas
+
+        // Para cada prova/bateria, vamos salvar as informações
+        for (const bateria of baterias) {
+            const { Provas_id, numero, nadador } = bateria;
+
+            // Inserir uma nova bateria
+            const [result] = await connection.execute(
+                'INSERT INTO baterias (descricao, eventos_id, tipoProvas_id, Nadadores_id, provas_id) VALUES (?, ?, ?, ?, ?)',
+                [
+                    `Bateria ${numero}`,   // descricao
+                    eventos_id,            // eventos_id
+                    tipoProvas_id,          // tipoProvas_id
+                    nadador.Inscricoes_id,  // Nadadores_id (associando o nadador)
+                    Provas_id               // provas_id
+                ]
+            );
+
+            const Baterias_id = result.insertId; // ID da bateria recém-criada
+
+            // Inserir o nadador na tabela baterias_inscricoes
+            await connection.execute(
+                'INSERT INTO baterias_inscricoes (baterias_id, inscricoes_id, piscina, raia) VALUES (?, ?, ?, ?)',
+                [
+                    Baterias_id,            // baterias_id (ID da bateria recém-criada)
+                    nadador.Inscricoes_id,  // inscricoes_id
+                    numero,                 // piscina (número da bateria)
+                    nadador.raia            // raia
+                ]
+            );
+        }
+
+        res.status(201).json({ message: 'Baterias salvas com sucesso' });
+    } catch (error) {
+        console.error('Erro ao salvar baterias:', error);
+        res.status(500).json({ message: 'Erro ao salvar baterias' });
+    } finally {
+        connection.release();
     }
 });
 
 
-router.post('/salvarBaterias', async (req, res) => {
+
+/* router.post('/salvarBaterias', async (req, res) => {
     const connection = await pool.getConnection();
     try {
         const { Provas_id, numero, nadadores } = req.body;
@@ -106,6 +124,6 @@ router.post('/salvarBaterias', async (req, res) => {
         connection.release();
     }
 });
+ */
 
-
-  module.exports = router;
+module.exports = router;

@@ -4,6 +4,194 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM completamente carregado e analisado');
     carregarEventos();
 
+});
+
+function carregarEventos() {
+    fetch('/balizamento/buscarEventos')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar eventos');
+            }
+            return response.json();
+        })
+        .then(data => {
+            eventos = data; // Atribui os eventos recebidos à variável eventos
+
+            const eventoSelect = document.getElementById('selectEvento');
+            eventos.forEach(evento => {
+                const option = document.createElement('option');
+                option.value = evento.id;
+                const dataFormatada = new Date(evento.data).toLocaleDateString('pt-BR'); //formatar a data para aparecer na sequancia
+                option.textContent = `${evento.nome} - ${dataFormatada}`;
+                eventoSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar eventos:', error);
+        });
+}
+
+/*FUNÇÕES DO BALIZAMENTO*/
+
+// Converter o tempo para milissegundos
+function timeToMilliseconds(time) {
+    if (time === "Sem recorde") return Infinity; // Para ordenar nadadores sem tempo registrado no final
+    const [minutes, seconds, centiseconds] = time.split(':').map(Number);
+    return (minutes * 60 + seconds + centiseconds / 100) * 1000;
+}
+// Função para dividir nadadores em baterias de 6 em 6
+function dividirEmBaterias(nadadores) {
+    const maxPorBateria = 6; // Número máximo de nadadores por bateria
+    let baterias = []; // Inicializa a lista de baterias
+
+    for (let i = 0; i < nadadores.length; i += maxPorBateria) {
+        let bateria = nadadores.slice(i, i + maxPorBateria); // Cria a sublista de nadadores
+        baterias.push(bateria); // Adiciona a bateria à lista
+    }
+
+    return baterias;
+}
+
+// Função para distribuir os nadadores nas raias de acordo com a classificação
+function distribuirNadadoresNasRaias(nadadores) {
+    const nadadoresPorRaia = Array(6).fill(null).map(() => []);
+
+    // Ordem das raias conforme a posição de classificação
+    const ordemRaias = [2, 3, 1, 4, 0, 5]; // Raia 3, 4, 2, 5, 1, 6 (0-indexado)
+
+    // Ordena os nadadores pelos tempos mais rápidos (menor para maior)
+    nadadores.forEach((nadador, index) => {
+        // Calcular a raia correspondente
+        const raiaIndex = ordemRaias[index % 6]; // Usa o índice do nadador para definir a raia
+        nadadoresPorRaia[raiaIndex].push(nadador); // Adiciona o nadador à raia correspondente
+    });
+
+    return nadadoresPorRaia; // Retorna o array de nadadores organizados por raia
+}
+
+// ação de clique no botão BALIZAR
+document.getElementById('btnBalizar').addEventListener('click', () => {
+    const eventoId = document.getElementById('selectEvento').value;
+
+    if (!eventoId) {
+        alert('Por favor, selecione um evento.');
+        return;
+    }
+
+    // Listar os inscritos para verificação
+    fetch(`/balizamento/listarInscritos?eventoId=${eventoId}`)
+        .then(response => response.json())
+        .then(data => {
+            const resultadoContainer = document.querySelector('.resultado-container');
+            resultadoContainer.innerHTML = ''; // Limpa o conteúdo anterior
+
+            let provaAtual = '';
+            let tabela, tbody; // Variáveis para criar as tabelas
+
+            // Primeira parte: Listar os inscritos como antes
+            data.forEach(inscrito => {
+                if (inscrito.nome_prova !== provaAtual) {
+                    // Se a prova mudou, cria um novo título e uma nova tabela
+                    provaAtual = inscrito.nome_prova;
+
+                    // Cria o título da prova
+                    const tituloProva = document.createElement('h3');
+                    tituloProva.textContent = `Inscritos - ${provaAtual}`;
+                    resultadoContainer.appendChild(tituloProva);
+
+                    // Cria uma nova tabela para os inscritos
+                    tabela = document.createElement('table');
+                    const thead = tabela.createTHead();
+                    const headerRow = thead.insertRow();
+                    headerRow.insertCell().textContent = 'Nadador';
+                    headerRow.insertCell().textContent = 'Tempo';
+
+                    tbody = tabela.createTBody();
+                    resultadoContainer.appendChild(tabela);
+                }
+
+                // Adiciona a linha do nadador à tabela de inscritos
+                const row = tbody.insertRow();
+                row.insertCell().textContent = inscrito.nome_nadador;
+                row.insertCell().textContent = inscrito.melhor_tempo;
+            });
+
+            // Segunda parte: Balizamento (distribuição em baterias)
+            const tituloBalizamento = document.createElement('h1');
+            tituloBalizamento.textContent = 'Balizamento';
+            resultadoContainer.appendChild(tituloBalizamento);
+
+            // Divisão por provas para o balizamento
+            let nadadoresPorProva = {};
+
+            // Agrupa nadadores por prova para o balizamento
+            data.forEach(inscrito => {
+                if (!nadadoresPorProva[inscrito.nome_prova]) {
+                    nadadoresPorProva[inscrito.nome_prova] = [];
+                }
+                nadadoresPorProva[inscrito.nome_prova].push(inscrito);
+            });
+
+            // Processar cada prova separadamente
+            Object.keys(nadadoresPorProva).forEach(prova => {
+                const nadadores = nadadoresPorProva[prova];
+                const nadadoresSemTempo = nadadores.filter(n => n.melhor_tempo === "Sem recorde"); // Filtra nadadores sem tempo registrado
+                const nadadoresComTempo = nadadores
+                    .filter(n => n.melhor_tempo !== "Sem recorde")
+                    .sort((a, b) => timeToMilliseconds(a.melhor_tempo) - timeToMilliseconds(b.melhor_tempo)); // Ordena do mais rápido para o mais lento
+
+                const todosNadadores = [...nadadoresComTempo, ...nadadoresSemTempo]; // Combina nadadores com e sem tempo
+                const baterias = dividirEmBaterias(todosNadadores); // Divide os nadadores em baterias
+
+                // Cria o título da prova para balizamento
+                const tituloProvaBalizamento = document.createElement('h3');
+                tituloProvaBalizamento.textContent = `Balizamento - ${prova}`;
+                resultadoContainer.appendChild(tituloProvaBalizamento);
+
+                // Exibe nadadores organizados por baterias
+                baterias.forEach((bateria, index) => {
+                    // Cria uma nova tabela para a bateria
+                    const tabelaBateria = document.createElement('table');
+
+                    // Cria o cabeçalho para Nadador e Tempo
+                    const theadBateria = tabelaBateria.createTHead();
+                    const headerRowBateria = theadBateria.insertRow();
+                    headerRowBateria.insertCell().textContent = 'Raia';
+                    headerRowBateria.insertCell().textContent = 'Nadador';
+                    headerRowBateria.insertCell().textContent = 'Tempo';
+
+                    // Cria a linha com o título "Bateria X" acima do cabeçalho
+                    const tituloBateriaRow = tabelaBateria.insertRow(0); // Insere como a primeira linha
+                    const tituloBateriaCell = tituloBateriaRow.insertCell();
+                    tituloBateriaCell.textContent = `Bateria ${index + 1}`;
+                    tituloBateriaCell.colSpan = 3; // Ocupa as 3 colunas
+                    resultadoContainer.appendChild(tabelaBateria);
+
+                    const tbodyBateria = tabelaBateria.createTBody();
+
+                    // Organiza os nadadores nas raias conforme a classificação
+                    const nadadoresDistribuidos = distribuirNadadoresNasRaias(bateria);
+
+                    // Adiciona os nadadores nas posições corretas da tabela de acordo com a raia
+                    nadadoresDistribuidos.forEach((raia, raiaIndex) => {
+                        raia.forEach(nadador => {
+                            const row = tbodyBateria.insertRow();
+                            row.insertCell().textContent = raiaIndex +1; //raia é o indice +1
+                            row.insertCell().textContent = nadador.nome_nadador;
+                            row.insertCell().textContent = nadador.melhor_tempo || 'Sem tempo';
+                        });
+                    });
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao buscar inscritos:', error);
+        });
+});
+
+
+/* 
+
     // Seleciona o botão de balizamento
     const btnBalizar = document.getElementById('btnBalizar');
 
@@ -181,7 +369,6 @@ document.addEventListener('DOMContentLoaded', function () {
         gerarPDF(grupos, eventoSelecionado);
 
     });
-});
 
 // Função para converter tempo no formato 0:01:04 para segundos
 function converterTempoParaSegundos(tempo) {
@@ -197,30 +384,7 @@ function formatarTempo(tempoEmSegundos) {
     return `${horas}:${minutos}:${segundos}`;
 }
 
-function carregarEventos() {
-    fetch('/balizamento/buscarEventos')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar eventos');
-            }
-            return response.json();
-        })
-        .then(data => {
-            eventos = data; // Atribui os eventos recebidos à variável eventos
 
-            const eventoSelect = document.getElementById('selectEvento');
-            eventos.forEach(evento => {
-                const option = document.createElement('option');
-                option.value = evento.id;
-                const dataFormatada = new Date(evento.data).toLocaleDateString('pt-BR'); //formatar a data para aparecer na sequancia
-                option.textContent = `${evento.nome} - ${dataFormatada}`;
-                eventoSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar eventos:', error);
-        });
-}
 
 function carregarInscritos(provaId) {
     console.log('Carregando inscritos para a prova com ID:', provaId);
@@ -355,3 +519,4 @@ function gerarPDF(grupos, evento) {
     doc.save('distribuicao_nadadores.pdf');
 }
 
+ */

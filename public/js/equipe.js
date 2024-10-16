@@ -682,6 +682,32 @@ function criarTabelaInscricao(nadadores, provas) {
     container.appendChild(tabela);
 }
 
+//Função para verificar quem já está inscrito no evento em questão
+async function isNadadorInscrito(nadadorId, provaId, eventoId) {
+    try {
+      const response = await fetch(`/equipe/verificarInscricao`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          nadadorId,
+          provaId,
+          eventoId
+        })
+      });
+  
+      if (!response.ok) {
+        throw new Error('Erro ao verificar inscrição');
+      }
+  
+      const data = await response.json();
+      return data.inscrito; // Assumindo que o servidor retorna um objeto com a propriedade 'inscrito'
+    } catch (error) {
+      console.error('Erro ao verificar inscrição:', error);
+      return false; // Retorna falso em caso de erro
+    }
+  }
 
 
 document.getElementById('btnCarregarDados').addEventListener('click', function () {

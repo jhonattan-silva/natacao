@@ -246,4 +246,24 @@ router.post('/salvarInscricao',  async (req, res) => {
     }
 });
 
+//Rota para verificar nadadores já inscritos
+router.post('/verificarInscricao', async (req, res) => {
+    try {
+      const { nadadorId, provaId, eventoId } = req.body;
+  
+      const inscricao = await Inscricao.findOne({
+        where: {
+          nadadorId,
+          provaId,
+          eventoId
+        }
+      });
+  
+      res.json({ inscrito: !!inscricao });
+    } catch (error) {
+      console.error('Erro ao verificar inscrição:', error);
+      res.status(500).json({ error: 'Erro ao verificar inscrição' });
+    }
+  });
+
 module.exports = router;
